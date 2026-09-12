@@ -16,6 +16,7 @@ import { FinalCTA } from '@/components/FinalCTA';
 import { Footer } from '@/components/Footer';
 import { CheckoutModal } from '@/components/CheckoutModal';
 import { MobileStickyCTA } from '@/components/MobileStickyCTA';
+import BannerSection from './components/BannerSection';
 
 function App() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -28,6 +29,7 @@ function App() {
     <div className="min-h-screen bg-white overflow-x-hidden">
       <Header onGetStarted={handleGetStarted} />
       <main>
+        <BannerSection />
         <HeroSection onGetStarted={handleGetStarted} />
         <BenefitsSection onGetStarted={handleGetStarted} />
         <AudienceSection />
