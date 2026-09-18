@@ -5,9 +5,13 @@ import { CTAButton } from '@/components/ui/CTAButton';
 
 type PlanSummaryProps = {
   onGetStarted: () => void;
+  hasActive999Package?: boolean;
 };
 
-export function PlanSummary({ onGetStarted }: PlanSummaryProps) {
+export function PlanSummary({
+  onGetStarted,
+  hasActive999Package = false,
+}: PlanSummaryProps) {
   return (
     <section className="py-20 lg:py-28 bg-white relative overflow-hidden">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -85,7 +89,10 @@ export function PlanSummary({ onGetStarted }: PlanSummaryProps) {
               className="mt-10"
             >
               <CTAButton onClick={onGetStarted} variant="gold" size="lg">
-                Activate My Plan — ₹999
+                {hasActive999Package
+                  ? 'Go to Seller Dashboard'
+                  : 'Activate My Plan — ₹999'}
+
                 <ArrowRight className="w-5 h-5" />
               </CTAButton>
               <div className="mt-4 flex items-center gap-2 justify-center text-sm text-navy-300">

@@ -3,9 +3,11 @@ import { ArrowRight } from 'lucide-react';
 
 type MobileStickyCTAProps = {
   onGetStarted: () => void;
+  hasActive999Package?: boolean;
+
 };
 
-export function MobileStickyCTA({ onGetStarted }: MobileStickyCTAProps) {
+export function MobileStickyCTA({ onGetStarted, hasActive999Package = false, }: MobileStickyCTAProps) {
   return (
     <motion.div
       initial={{ y: 100 }}
@@ -17,7 +19,10 @@ export function MobileStickyCTA({ onGetStarted }: MobileStickyCTAProps) {
         onClick={onGetStarted}
         className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gold-400 text-navy-900 font-semibold text-base shadow-lg active:scale-95 transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-300"
       >
-        Activate Plan — ₹999
+         {hasActive999Package
+                    ? 'Go to Seller Dashboard'
+                    : 'Activate Plan — ₹999'}
+        
         <ArrowRight className="w-4 h-4" />
       </button>
     </motion.div>

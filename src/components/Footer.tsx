@@ -4,9 +4,11 @@ import { CTAButton } from '@/components/ui/CTAButton';
 
 type FooterProps = {
   onGetStarted: () => void;
+    hasActive999Package?: boolean;
+
 };
 
-export function Footer({ onGetStarted }: FooterProps) {
+export function Footer({ onGetStarted, hasActive999Package = false, }: FooterProps) {
   const handleNavClick = (href: string) => {
     const el = document.querySelector(href);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -31,7 +33,9 @@ export function Footer({ onGetStarted }: FooterProps) {
             </p>
             <div className="mt-6">
               <CTAButton onClick={onGetStarted} variant="gold" size="md">
-                Get Started — ₹999
+                {hasActive999Package
+                    ? 'Go to Seller Dashboard'
+                    : 'Get Started — ₹999'}
                 <ArrowRight className="w-4 h-4" />
               </CTAButton>
             </div>

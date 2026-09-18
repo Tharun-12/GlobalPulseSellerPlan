@@ -114,9 +114,13 @@ export const benefits: Benefit[] = [
 
 type BenefitsSectionProps = {
   onGetStarted: () => void;
+  hasActive999Package?: boolean;
 };
 
-export function BenefitsSection({ onGetStarted }: BenefitsSectionProps) {
+export function BenefitsSection({
+  onGetStarted,
+  hasActive999Package = false,
+}: BenefitsSectionProps) {
   return (
     <section id="what-you-get" className="py-20 lg:py-28 bg-white relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -179,7 +183,9 @@ export function BenefitsSection({ onGetStarted }: BenefitsSectionProps) {
               </div>
               <div className="mt-10">
                 <CTAButton onClick={onGetStarted} variant="gold" size="lg">
-                  Activate Now — ₹999
+                  {hasActive999Package
+                    ? 'Go to Seller Dashboard'
+                    : 'Activate Now — ₹999'}
                 </CTAButton>
               </div>
             </div>

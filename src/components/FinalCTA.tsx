@@ -5,9 +5,10 @@ import { CTAButton } from '@/components/ui/CTAButton';
 
 type FinalCTAProps = {
   onGetStarted: () => void;
+    hasActive999Package?: boolean;
 };
 
-export function FinalCTA({ onGetStarted }: FinalCTAProps) {
+export function FinalCTA({ onGetStarted,  hasActive999Package = false, }: FinalCTAProps) {
   return (
     <section className="py-20 lg:py-28 bg-trade-glow relative overflow-hidden">
       {/* Background effects */}
@@ -110,7 +111,9 @@ export function FinalCTA({ onGetStarted }: FinalCTAProps) {
           className="mt-10 flex flex-col items-center gap-4"
         >
           <CTAButton onClick={onGetStarted} variant="gold" size="lg">
-            Activate My Plan — ₹999
+              {hasActive999Package
+                    ? 'Go to Seller Dashboard'
+                    : 'Activate My Plan — ₹999'}
             <ArrowRight className="w-5 h-5" />
           </CTAButton>
           <div className="flex items-center gap-2 text-sm text-navy-300">
