@@ -902,7 +902,7 @@ return (
 
                   {/* Email */}
 
-                  {seller?.email && (
+                  {/* {seller?.email && (
 
                     <p
                       className="
@@ -929,7 +929,7 @@ return (
 
                     </p>
 
-                  )}
+                  )} */}
 
 
                   {/* Benefits */}
@@ -988,9 +988,14 @@ return (
                   <button
                     type="button"
                     onClick={() => {
-                    localStorage.removeItem(CHECKOUT_STATE_KEY);
-                    handleClose();
-                    }}
+  localStorage.removeItem(CHECKOUT_STATE_KEY);
+
+  window.dispatchEvent(
+    new Event('globpulse-auth-changed')
+  );
+
+  handleClose();
+}}
 
                     className="
                       mt-6
