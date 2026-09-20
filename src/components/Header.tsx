@@ -15,6 +15,7 @@ import {
 
 type HeaderProps = {
   onGetStarted: () => void;
+  onDashboardClick: () => void;
 };
 
 const SELLER_TOKEN_KEY = 'globpulse_seller_token';
@@ -22,7 +23,10 @@ const SELLER_TOKEN_KEY = 'globpulse_seller_token';
 const API_URL =
   (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
-export function Header({ onGetStarted }: HeaderProps) {
+export function Header({
+  onGetStarted,
+  onDashboardClick,
+}: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
 
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -210,24 +214,7 @@ export function Header({ onGetStarted }: HeaderProps) {
   };
 
 
-  /*
-   * =============================================================
-   * GO TO SELLER DASHBOARD
-   * =============================================================
-   */
 
-  const handleSellerDashboard = () => {
-    if (!API_URL) {
-      console.error(
-        'VITE_API_URL is not configured.'
-      );
-
-      return;
-    }
-
-    window.location.href =
-      `${API_URL}/seller/dashboard`;
-  };
 
 
   /*
@@ -334,13 +321,13 @@ export function Header({ onGetStarted }: HeaderProps) {
 
             {showDashboardButton ? (
 
-              <CTAButton
-                onClick={handleSellerDashboard}
-                size="md"
-                variant="gold"
-              >
-                Go to Seller Dashboard
-              </CTAButton>
+            <CTAButton
+  onClick={onDashboardClick}
+  size="md"
+  variant="gold"
+>
+  View My Plan
+</CTAButton>
 
             ) : (
 
@@ -546,16 +533,16 @@ export function Header({ onGetStarted }: HeaderProps) {
 
                 {showDashboardButton ? (
 
-                  <CTAButton
-                    onClick={() => {
-                      setMobileOpen(false);
-                      handleSellerDashboard();
-                    }}
-                    variant="gold"
-                    className="w-full"
-                  >
-                    Go to Seller Dashboard
-                  </CTAButton>
+               <CTAButton
+  onClick={() => {
+    setMobileOpen(false);
+    onDashboardClick();
+  }}
+  variant="gold"
+  className="w-full"
+>
+  View My Plan
+</CTAButton>
 
                 ) : (
 

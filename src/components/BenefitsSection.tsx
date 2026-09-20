@@ -114,11 +114,13 @@ export const benefits: Benefit[] = [
 
 type BenefitsSectionProps = {
   onGetStarted: () => void;
+   onDashboardClick: () => void;
   hasActive999Package?: boolean;
 };
 
 export function BenefitsSection({
   onGetStarted,
+  onDashboardClick,
   hasActive999Package = false,
 }: BenefitsSectionProps) {
   return (
@@ -182,9 +184,13 @@ export function BenefitsSection({
                 ))}
               </div>
               <div className="mt-10">
-                <CTAButton onClick={onGetStarted} variant="gold" size="lg">
+                <CTAButton onClick={hasActive999Package
+      ? onDashboardClick
+      : onGetStarted
+  } 
+  variant="gold" size="lg">
                   {hasActive999Package
-                    ? 'Go to Seller Dashboard'
+                    ? 'View My Plan'
                     : 'Activate Now — ₹999'}
                 </CTAButton>
               </div>

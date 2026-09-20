@@ -509,26 +509,23 @@ return (
         ====================================================== */
 
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-
-          className="
-            fixed
-            inset-0
-            z-[70]
-            overflow-y-auto
-            overscroll-contain
-            bg-navy-950/80
-            px-3
-            py-4
-            backdrop-blur-sm
-            sm:px-4
-            sm:py-6
-          "
-
-          onClick={handleClose}
-        >
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  exit={{ opacity: 0 }}
+  className="
+    fixed
+    inset-0
+    z-[70]
+    overflow-y-auto
+    overscroll-contain
+    bg-navy-950/80
+    px-3
+    py-4
+    sm:px-4
+    sm:py-6
+  "
+  onClick={handleClose}
+>
 
           {/* =================================================
               MODAL
@@ -1269,95 +1266,142 @@ return (
                           PLAN SUMMARY
                       ================================================== */}
 
-                      <div
-                        className="
-                          mt-4
-                          rounded-xl
-                          border
-                          border-navy-100
-                          bg-navy-50
-                          p-4
-                        "
-                      >
+              {/* =================================================
+    PLAN SUMMARY + GST
+================================================== */}
 
-                        <div
-                          className="
-                            flex
-                            items-center
-                            justify-between
-                            gap-3
-                          "
-                        >
+<div
+  className="
+    mt-4
+    overflow-hidden
+    rounded-xl
+    border
+    border-navy-100
+    bg-navy-50
+  "
+>
+  {/* Plan */}
+  <div
+    className="
+      flex
+      items-center
+      justify-between
+      gap-3
+      border-b
+      border-navy-100
+      px-4
+      py-4
+    "
+  >
+    <div>
+      <p className="text-xs text-navy-400">
+        Selected Plan
+      </p>
 
-                          <span
-                            className="
-                              text-sm
-                              font-medium
-                              text-navy-700
-                            "
-                          >
-                            GlobPulse Seller Plan
-                          </span>
+      <p className="mt-0.5 text-sm font-semibold text-navy-900">
+        GlobPulse Seller Plan
+      </p>
+    </div>
 
+    <div className="shrink-0 text-right">
+      <p className="font-display text-xl font-bold text-navy-900">
+        ₹999.00
+      </p>
 
-                          <span
-                            className="
-                              shrink-0
-                              font-display
-                              text-2xl
-                              font-bold
-                              text-navy-900
-                            "
-                          >
-                            ₹999
-                          </span>
+      <p className="text-[10px] text-navy-400">
+        Base price
+      </p>
+    </div>
+  </div>
 
-                        </div>
+  {/* Price Breakdown */}
+  <div className="px-4 py-4">
 
+    <div className="space-y-2">
 
-                        {/* Benefits */}
+      {/* Plan Price */}
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-navy-500">
+          Plan Price
+        </span>
 
-                        <div
-                          className="
-                            mt-3
-                            space-y-1.5
-                          "
-                        >
+        <span className="font-medium text-navy-800">
+          ₹999.00
+        </span>
+      </div>
 
-                          {planBenefits.map((benefit) => (
+      {/* GST */}
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-navy-500">
+          GST (18%)
+        </span>
 
-                            <div
-                              key={benefit}
-                              className="
-                                flex
-                                items-center
-                                gap-2
-                                text-xs
-                                text-navy-500
-                              "
-                            >
+        <span className="font-medium text-navy-800">
+          ₹179.82
+        </span>
+      </div>
 
-                              <span
-                                className="
-                                  h-1
-                                  w-1
-                                  shrink-0
-                                  rounded-full
-                                  bg-gold-500
-                                "
-                              />
+      {/* Divider */}
+      <div className="my-3 border-t border-navy-200" />
 
-                              <span>
-                                {benefit}
-                              </span>
+      {/* Total */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold text-navy-900">
+            Total Payable
+          </p>
 
-                            </div>
+          <p className="mt-0.5 text-[10px] text-navy-400">
+            Inclusive of 18% GST
+          </p>
+        </div>
 
-                          ))}
+        <p className="font-display text-2xl font-bold text-navy-900">
+          ₹1,178.82
+        </p>
+      </div>
 
-                        </div>
+    </div>
 
-                      </div>
+    {/* Benefits */}
+    <div className="mt-5 border-t border-navy-100 pt-4">
+
+      <p className="mb-3 text-xs font-semibold text-navy-700">
+        Plan Includes
+      </p>
+
+      <div className="space-y-1.5">
+        {planBenefits.map((benefit) => (
+          <div
+            key={benefit}
+            className="
+              flex
+              items-center
+              gap-2
+              text-xs
+              text-navy-500
+            "
+          >
+            <CheckCircle2
+              className="
+                h-3.5
+                w-3.5
+                shrink-0
+                text-green-600
+              "
+            />
+
+            <span>
+              {benefit}
+            </span>
+          </div>
+        ))}
+      </div>
+
+    </div>
+
+  </div>
+</div>
 
 
                       {/* =================================================
@@ -1484,7 +1528,7 @@ return (
                           ) : (
 
                             <span>
-                              Pay ₹999 with Razorpay
+                              Pay ₹1,178.82 with Razorpay
                             </span>
 
                           )}

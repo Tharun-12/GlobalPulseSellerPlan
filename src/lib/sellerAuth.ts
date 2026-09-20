@@ -52,12 +52,12 @@ export async function validateSellerAuth(): Promise<SellerAuthResult> {
         : undefined;
 
     /*
-     * 401 = seller authentication is invalid.
+     * 401 = token is invalid/revoked.
      *
-     * This can happen if:
-     * - seller was deleted
-     * - token is invalid
-     * - token is expired
+     * Examples:
+     * - seller logged out from Laravel
+     * - seller changed password
+     * - token was revoked
      */
     if (status === 401) {
       clearSellerAuth();
@@ -69,14 +69,35 @@ export async function validateSellerAuth(): Promise<SellerAuthResult> {
     }
 
     /*
-     * 404 = seller exists but package
-     * was not found.
+     * 404 = seller is authenticated,
+     * but no package exists.
+     */
+    if (status === 404) {
+      return {
+        authenticated: true,
+        packageActive: false,
+      };
+    }
+
+    /*
+     * 403 = seller is authenticated,
+     * but access is currently forbidden.
+     */
+    if (status === 403) {
+      return {
+        authenticated: true,
+        packageActive: false,
+      };
+    }
+
+    /*
+     * Network/server error.
      *
-     * Seller remains authenticated,
-     * but package is inactive.
+     * Do not delete the token because we cannot
+     * confirm that the seller is actually logged out.
      */
     return {
-      authenticated: true,
+      authenticated: false,
       packageActive: false,
     };
   }

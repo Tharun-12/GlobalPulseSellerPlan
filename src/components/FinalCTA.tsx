@@ -5,10 +5,11 @@ import { CTAButton } from '@/components/ui/CTAButton';
 
 type FinalCTAProps = {
   onGetStarted: () => void;
+  onDashboardClick: () => void;
     hasActive999Package?: boolean;
 };
 
-export function FinalCTA({ onGetStarted,  hasActive999Package = false, }: FinalCTAProps) {
+export function FinalCTA({ onGetStarted,  onDashboardClick,  hasActive999Package = false, }: FinalCTAProps) {
   return (
     <section className="py-20 lg:py-28 bg-trade-glow relative overflow-hidden">
       {/* Background effects */}
@@ -110,9 +111,12 @@ export function FinalCTA({ onGetStarted,  hasActive999Package = false, }: FinalC
           transition={{ duration: 0.6, delay: 0.4 }}
           className="mt-10 flex flex-col items-center gap-4"
         >
-          <CTAButton onClick={onGetStarted} variant="gold" size="lg">
+          <CTAButton onClick={hasActive999Package
+              ? onDashboardClick
+              : onGetStarted}  
+          variant="gold" size="lg">
               {hasActive999Package
-                    ? 'Go to Seller Dashboard'
+                    ? 'View My Plan'
                     : 'Activate My Plan — ₹999'}
             <ArrowRight className="w-5 h-5" />
           </CTAButton>

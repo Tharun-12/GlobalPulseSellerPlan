@@ -18,384 +18,353 @@ import { Footer } from '@/components/Footer';
 import { CheckoutModal } from './components/CheckoutModal';
 import { MobileStickyCTA } from '@/components/MobileStickyCTA';
 import BannerSection from './components/BannerSection';
+import { AlreadyActive } from '@/components/auth/AlreadyActive';
 
-import {
-  getSellerPackage,
-  is999PlanActive,
-} from '@/lib/sellerApi';
-
-
-const SELLER_TOKEN_KEY = 'globpulse_seller_token';
-
+import { validateSellerAuth } from '@/lib/sellerAuth';
 
 function App() {
-  /*
-   * =============================================================
-   * CHECKOUT MODAL
-   * =============================================================
-   */
-
   const [checkoutOpen, setCheckoutOpen] =
     useState(false);
 
-
-  /*
-   * =============================================================
-   * SELLER STATUS
-   * =============================================================
-   */
+  const [activePopupOpen, setActivePopupOpen] = useState(false);
 
   const [isSellerLoggedIn, setIsSellerLoggedIn] =
-    useState(() => {
-      return Boolean(
-        localStorage.getItem(
-          SELLER_TOKEN_KEY
-        )
-      );
-    });
-
+    useState(false);
 
   const [hasActive999Package, setHasActive999Package] =
     useState(false);
 
-
   const [checkingSellerStatus, setCheckingSellerStatus] =
-    useState(() => {
-      return Boolean(
-        localStorage.getItem(
-          SELLER_TOKEN_KEY
-        )
+    useState(true);
+
+  const checkSellerStatus = useCallback(async () => {
+    setCheckingSellerStatus(true);
+
+    try {
+      console.log(
+        '🔎 App: validating seller session...'
       );
-    });
 
+      const result = await validateSellerAuth();
 
-  /*
-   * =============================================================
-   * CHECK SELLER PACKAGE
-   * =============================================================
-   */
+      console.log(
+        '👤 App: seller authenticated:',
+        result.authenticated
+      );
 
-  const checkSellerStatus = useCallback(
-    async () => {
+      console.log(
+        '📦 App: ₹999 package active:',
+        result.packageActive
+      );
 
-      const token =
-        localStorage.getItem(
-          SELLER_TOKEN_KEY
-        );
+      setIsSellerLoggedIn(
+        result.authenticated
+      );
 
+      setHasActive999Package(
+        result.packageActive
+      );
+    } catch (error) {
+      console.error(
+        '❌ App: seller session check failed:',
+        error
+      );
 
-      /*
-       * No seller login
-       */
+      setIsSellerLoggedIn(false);
+      setHasActive999Package(false);
+    } finally {
+      setCheckingSellerStatus(false);
+    }
+  }, []);
 
-      if (!token) {
+  const getLoggedInSellerName = useCallback(() => {
+  try {
+    const savedSeller = localStorage.getItem(
+      'globpulse_seller'
+    );
 
-        setIsSellerLoggedIn(false);
+    if (!savedSeller) {
+      return 'there';
+    }
 
-        setHasActive999Package(false);
+    const seller = JSON.parse(savedSeller);
 
-        setCheckingSellerStatus(false);
+    return (
+      seller?.fullName ||
+      seller?.name ||
+      seller?.businessName ||
+      'there'
+    );
+  } catch {
+    return 'there';
+  }
+}, []);
 
-        return;
-      }
+const handleSellerDashboardClick = useCallback(() => {
+  if (checkingSellerStatus) {
+    return;
+  }
 
+  if (
+    isSellerLoggedIn &&
+    hasActive999Package
+  ) {
+    setActivePopupOpen(true);
+    return;
+  }
 
-      /*
-       * Seller is logged in
-       */
-
-      setIsSellerLoggedIn(true);
-
-      setCheckingSellerStatus(true);
-
-
-      try {
-
-        console.log(
-          '🔎 App: checking seller package...'
-        );
-
-
-        const packageResponse =
-          await getSellerPackage();
-
-
-        const packageActive =
-          is999PlanActive(
-            packageResponse
-          );
-
-
-        console.log(
-          '📦 App: ₹999 package active:',
-          packageActive
-        );
-
-
-        setHasActive999Package(
-          packageActive
-        );
-
-      } catch (error) {
-
-        /*
-         * Seller has no package yet,
-         * or package is not active.
-         */
-
-        console.log(
-          'ℹ️ App: seller does not have an active ₹999 package.',
-          error
-        );
-
-
-        setHasActive999Package(false);
-
-      } finally {
-
-        setCheckingSellerStatus(false);
-
-      }
-
-    },
-    []
-  );
-
+  // If the package is not active,
+  // open the normal checkout flow.
+  setCheckoutOpen(true);
+}, [
+  checkingSellerStatus,
+  isSellerLoggedIn,
+  hasActive999Package,
+]);
 
   /*
-   * =============================================================
-   * INITIAL STATUS CHECK
-   * =============================================================
+   * Initial server-side session check
    */
-
   useEffect(() => {
-
     checkSellerStatus();
-
   }, [checkSellerStatus]);
 
-
   /*
-   * =============================================================
-   * LISTEN FOR LOGIN / LOGOUT / PACKAGE CHANGES
-   * =============================================================
+   * React to login/logout changes
    */
-
   useEffect(() => {
-
     const handleAuthChanged = () => {
-
       checkSellerStatus();
-
     };
-
 
     window.addEventListener(
       'globpulse-auth-changed',
       handleAuthChanged
     );
 
-
     window.addEventListener(
       'storage',
       handleAuthChanged
     );
 
-
     return () => {
-
       window.removeEventListener(
         'globpulse-auth-changed',
         handleAuthChanged
       );
 
-
       window.removeEventListener(
         'storage',
         handleAuthChanged
       );
-
     };
-
   }, [checkSellerStatus]);
 
+  /*
+   * Re-check when user returns to landing page
+   */
+  useEffect(() => {
+    const handleFocus = () => {
+      checkSellerStatus();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkSellerStatus();
+      }
+    };
+
+    window.addEventListener(
+      'focus',
+      handleFocus
+    );
+
+    document.addEventListener(
+      'visibilitychange',
+      handleVisibilityChange
+    );
+
+    return () => {
+      window.removeEventListener(
+        'focus',
+        handleFocus
+      );
+
+      document.removeEventListener(
+        'visibilitychange',
+        handleVisibilityChange
+      );
+    };
+  }, [checkSellerStatus]);
 
   /*
-   * =============================================================
-   * GO TO SELLER DASHBOARD
-   * =============================================================
+   * Background session check every 30 seconds
    */
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      checkSellerStatus();
+    }, 30000);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [checkSellerStatus]);
 
   const goToSellerDashboard = useCallback(() => {
-
     const apiUrl =
       (import.meta.env.VITE_API_URL || '')
         .replace(/\/$/, '');
 
-
     if (!apiUrl) {
-
       console.error(
         'VITE_API_URL is not configured.'
       );
-
       return;
-
     }
-
 
     window.location.href =
       `${apiUrl}/seller/dashboard`;
-
   }, []);
 
-
-  /*
-   * =============================================================
-   * GET STARTED / CTA ACTION
-   * =============================================================
-   *
-   * Active seller:
-   *     → Laravel dashboard
-   *
-   * No active package:
-   *     → ₹999 checkout modal
-   *
-   * =============================================================
-   */
-
-  const handleGetStarted = useCallback(() => {
-
-    if (
-      isSellerLoggedIn &&
-      hasActive999Package &&
-      !checkingSellerStatus
-    ) {
-
-      goToSellerDashboard();
-
-      return;
-
-    }
-
-
-    setCheckoutOpen(true);
-
-  }, [
-    isSellerLoggedIn,
-    hasActive999Package,
-    checkingSellerStatus,
-    goToSellerDashboard,
-  ]);
-
-
-  /*
-   * =============================================================
-   * CLOSE CHECKOUT
-   * =============================================================
-   */
+const handleGetStarted = useCallback(() => {
+  setCheckoutOpen(true);
+}, []);
 
   const handleCheckoutClose = useCallback(() => {
-
     setCheckoutOpen(false);
-
   }, []);
 
-
-  /*
-   * =============================================================
-   * RENDER
-   * =============================================================
-   */
-
   return (
-
     <div className="min-h-screen bg-white overflow-x-hidden">
-
-      <Header
-        onGetStarted={handleGetStarted}
-      />
-
+     <Header
+  onGetStarted={handleGetStarted}
+  onDashboardClick={handleSellerDashboardClick}
+/>
 
       <main>
-
         <BannerSection />
 
-
-        <HeroSection
-          onGetStarted={handleGetStarted}
-          hasActive999Package={hasActive999Package}
-        />
-
+      <HeroSection
+  onGetStarted={handleGetStarted}
+  onDashboardClick={handleSellerDashboardClick}
+  hasActive999Package={hasActive999Package}
+/>
 
         <BenefitsSection
           onGetStarted={handleGetStarted}
-          hasActive999Package={hasActive999Package}
+           onDashboardClick={handleSellerDashboardClick}
+          hasActive999Package={
+            hasActive999Package
+          }
         />
-
 
         <AudienceSection />
 
-
         <WhyPlanSection />
-
 
         <WhyGlobPulseSection />
 
-
         <PlatformVideo />
-
 
         <PlatformScreenshots />
 
-
         <TestimonialsSection />
-
 
         <TrustSection />
 
-
         <HowItWorksSection />
-
 
         <PlanSummary
           onGetStarted={handleGetStarted}
-          hasActive999Package={hasActive999Package}
+          onDashboardClick={handleSellerDashboardClick}
+          hasActive999Package={
+            hasActive999Package
+          }
         />
-
 
         <FAQSection />
 
-
         <FinalCTA
           onGetStarted={handleGetStarted}
-          hasActive999Package={hasActive999Package}
+           onDashboardClick={handleSellerDashboardClick}
+          hasActive999Package={
+            hasActive999Package
+          }
         />
-
       </main>
-
 
       <Footer
         onGetStarted={handleGetStarted}
-        hasActive999Package={hasActive999Package}
+         onDashboardClick={handleSellerDashboardClick}
+        hasActive999Package={
+          hasActive999Package
+        }
       />
-
 
       <MobileStickyCTA
         onGetStarted={handleGetStarted}
-        hasActive999Package={hasActive999Package}
+         onDashboardClick={handleSellerDashboardClick}
+        hasActive999Package={
+          hasActive999Package
+        }
       />
 
+      {activePopupOpen && (
+  <div
+    className="
+      fixed
+      inset-0
+      z-[100]
+      flex
+      items-center
+      justify-center
+      bg-black/60
+      px-4
+    "
+    onClick={() => setActivePopupOpen(false)}
+  >
+    <div
+  className="
+    w-full
+    max-w-md
+    rounded-2xl
+    bg-white
+    p-6
+    shadow-2xl
+    sm:p-7
+  "
+  onClick={(event) => {
+    event.stopPropagation();
+  }}
+>
+      <AlreadyActive
+        sellerName={getLoggedInSellerName()}
+        onContinue={() => {
+          const apiUrl =
+            (import.meta.env.VITE_API_URL || '')
+              .replace(/\/$/, '');
+
+          if (!apiUrl) {
+            console.error(
+              'VITE_API_URL is not configured.'
+            );
+            return;
+          }
+
+          window.location.href =
+            `${apiUrl}/seller/dashboard`;
+        }}
+      />
+    </div>
+  </div>
+)}
 
       <CheckoutModal
         isOpen={checkoutOpen}
         onClose={handleCheckoutClose}
       />
-
     </div>
-
   );
 }
-
 
 export default App;

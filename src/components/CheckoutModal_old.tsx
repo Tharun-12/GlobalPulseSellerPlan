@@ -32,18 +32,18 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
     setStep('payment');
   };
 
-  const handlePayNow = () => {
-    setStatus('processing');
-    setErrorMsg('');
-    startRazorpayPayment(
-      formData,
-      () => setStatus('success'),
-      (msg) => {
-        setStatus('error');
-        setErrorMsg(msg);
-      }
-    );
-  };
+  // const handlePayNow = () => {
+  //   setStatus('processing');
+  //   setErrorMsg('');
+  //   startRazorpayPayment(
+  //     formData,
+  //     () => setStatus('success'),
+  //     (msg) => {
+  //       setStatus('error');
+  //       setErrorMsg(msg);
+  //     }
+  //   );
+  // };
 
   return (
     <AnimatePresence>
@@ -243,7 +243,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                       Cards, UPI, net banking, and wallets accepted.
                     </p>
 
-                    <button
+                    {/* <button
                       onClick={handlePayNow}
                       disabled={status === 'processing'}
                       className="mt-4 w-full py-3 rounded-lg bg-navy-900 text-white font-semibold text-sm hover:bg-navy-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -256,7 +256,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                       ) : (
                         <>Pay ₹999 with Razorpay</>
                       )}
-                    </button>
+                    </button> */}
 
                     {status === 'error' && (
                       <div className="mt-3 flex items-center justify-center gap-1.5 text-xs text-red-500">

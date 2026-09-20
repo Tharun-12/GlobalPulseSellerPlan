@@ -4,11 +4,13 @@ import { CTAButton } from '@/components/ui/CTAButton';
 
 type HeroSectionProps = {
   onGetStarted: () => void;
+  onDashboardClick: () => void;
   hasActive999Package?: boolean;
 };
 
 export function HeroSection({
   onGetStarted,
+  onDashboardClick,
   hasActive999Package = false,
 }: HeroSectionProps) {
   return (
@@ -63,13 +65,21 @@ export function HeroSection({
             </div>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <CTAButton onClick={onGetStarted} variant="gold" size="lg">
-                {hasActive999Package
-                  ? 'Go to Seller Dashboard'
-                  : 'Get Started for ₹999'}
+              <CTAButton
+  onClick={
+    hasActive999Package
+      ? onDashboardClick
+      : onGetStarted
+  }
+  variant="gold"
+  size="lg"
+>
+  {hasActive999Package
+    ? 'View My Plan'
+    : 'Get Started for ₹999'}
 
-                <ArrowRight className="w-5 h-5" />
-              </CTAButton>
+  <ArrowRight className="w-5 h-5" />
+</CTAButton>
             </div>
 
             <div className="mt-5 flex items-center gap-2 justify-center lg:justify-start text-sm text-navy-300">

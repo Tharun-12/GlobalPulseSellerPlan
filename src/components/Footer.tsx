@@ -4,11 +4,12 @@ import { CTAButton } from '@/components/ui/CTAButton';
 
 type FooterProps = {
   onGetStarted: () => void;
+    onDashboardClick: () => void;
     hasActive999Package?: boolean;
 
 };
 
-export function Footer({ onGetStarted, hasActive999Package = false, }: FooterProps) {
+export function Footer({ onGetStarted,  onDashboardClick, hasActive999Package = false, }: FooterProps) {
   const handleNavClick = (href: string) => {
     const el = document.querySelector(href);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -32,9 +33,12 @@ export function Footer({ onGetStarted, hasActive999Package = false, }: FooterPro
               with GlobPulse.
             </p>
             <div className="mt-6">
-              <CTAButton onClick={onGetStarted} variant="gold" size="md">
+              <CTAButton onClick={hasActive999Package
+              ? onDashboardClick
+              : onGetStarted}
+               variant="gold" size="md">
                 {hasActive999Package
-                    ? 'Go to Seller Dashboard'
+                    ? 'View My Plan'
                     : 'Get Started — ₹999'}
                 <ArrowRight className="w-4 h-4" />
               </CTAButton>

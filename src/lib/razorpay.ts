@@ -308,7 +308,7 @@ export async function startRazorpayPayment(
       name: 'GlobPulse',
 
       description:
-        'GlobPulse Seller Plan — ₹999',
+         'GlobPulse Seller Plan — ₹999 + 18% GST',
 
       order_id: razorpayOrderId,
 

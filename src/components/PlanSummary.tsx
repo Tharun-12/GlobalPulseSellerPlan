@@ -5,11 +5,13 @@ import { CTAButton } from '@/components/ui/CTAButton';
 
 type PlanSummaryProps = {
   onGetStarted: () => void;
+  onDashboardClick: () => void;
   hasActive999Package?: boolean;
 };
 
 export function PlanSummary({
   onGetStarted,
+  onDashboardClick,
   hasActive999Package = false,
 }: PlanSummaryProps) {
   return (
@@ -88,9 +90,11 @@ export function PlanSummary({
               transition={{ duration: 0.6, delay: 0.5 }}
               className="mt-10"
             >
-              <CTAButton onClick={onGetStarted} variant="gold" size="lg">
+              <CTAButton onClick={hasActive999Package
+              ? onDashboardClick
+              : onGetStarted} variant="gold" size="lg">
                 {hasActive999Package
-                  ? 'Go to Seller Dashboard'
+                  ? 'View My Plan'
                   : 'Activate My Plan — ₹999'}
 
                 <ArrowRight className="w-5 h-5" />

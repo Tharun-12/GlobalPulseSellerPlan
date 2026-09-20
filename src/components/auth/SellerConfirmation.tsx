@@ -126,58 +126,124 @@ export function SellerConfirmation({
       {/* =========================================================
           PLAN SUMMARY
       ========================================================== */}
-      <div className="mt-4 overflow-hidden rounded-xl border border-navy-100 bg-white">
+{/* =========================================================
+    PLAN SUMMARY
+========================================================== */}
+<div className="mt-4 overflow-hidden rounded-xl border border-navy-100 bg-white">
 
-        {/* Plan Header */}
-        <div className="flex items-center justify-between gap-3 border-b border-navy-100 px-4 py-4">
-          <div>
-            <p className="text-xs text-navy-400">
-              Selected Plan
-            </p>
+  {/* Plan Header */}
+  <div className="border-b border-navy-100 px-4 py-4">
+    <div className="flex items-start justify-between gap-3">
 
-            <p className="mt-0.5 text-sm font-semibold text-navy-900">
-              GlobPulse Seller Plan
-            </p>
-          </div>
+      <div>
+        <p className="text-xs text-navy-400">
+          Selected Plan
+        </p>
 
-          <div className="shrink-0 text-right">
-            <p className="font-display text-2xl font-bold text-navy-900">
-              ₹999
-            </p>
+        <p className="mt-0.5 text-sm font-semibold text-navy-900">
+          GlobPulse Seller Plan
+        </p>
+      </div>
 
-            <p className="text-[10px] text-navy-400">
-              One-time payment
-            </p>
-          </div>
-        </div>
+      <div className="shrink-0 text-right">
+        <p className="font-display text-xl font-bold text-navy-900">
+          ₹999.00
+        </p>
 
-        {/* Benefits */}
-        <div className="px-4 py-4">
-          <p className="mb-3 text-xs font-semibold text-navy-700">
-            Plan Includes
+        <p className="text-[10px] text-navy-400">
+          Base price
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  {/* Pricing Breakdown */}
+  <div className="px-4 py-4">
+
+    <div className="space-y-2">
+
+      {/* Base Price */}
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-navy-500">
+          Plan Price
+        </span>
+
+        <span className="font-medium text-navy-800">
+          ₹999.00
+        </span>
+      </div>
+
+      {/* GST */}
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-navy-500">
+          GST (18%)
+        </span>
+
+        <span className="font-medium text-navy-800">
+          ₹179.82
+        </span>
+      </div>
+
+      {/* Divider */}
+      <div className="my-3 border-t border-navy-100" />
+
+      {/* Total */}
+      <div className="flex items-center justify-between">
+
+        <div>
+          <p className="text-sm font-semibold text-navy-900">
+            Total Payable
           </p>
 
-          <div className="space-y-2.5">
-
-            {[
-              'Export-Import Course',
-              '50 Buyer Credits',
-              'Logo + Letterhead + Website',
-              '1-Year GlobPulse Free Plan',
-            ].map((item) => (
-              <div
-                key={item}
-                className="flex items-start gap-2.5 text-xs text-navy-600"
-              >
-                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
-
-                <span>{item}</span>
-              </div>
-            ))}
-
-          </div>
+          <p className="mt-0.5 text-[10px] text-navy-400">
+            Inclusive of 18% GST
+          </p>
         </div>
+
+        <div className="text-right">
+          <p className="font-display text-2xl font-bold text-navy-900">
+            ₹1,178.82
+          </p>
+        </div>
+
       </div>
+
+    </div>
+
+    {/* Benefits */}
+    <div className="mt-5 border-t border-navy-100 pt-4">
+
+      <p className="mb-3 text-xs font-semibold text-navy-700">
+        Plan Includes
+      </p>
+
+      <div className="space-y-2.5">
+
+        {[
+          'Export-Import Course',
+          '50 Buyer Credits',
+          'Logo + Letterhead + Website',
+          '1-Year GlobPulse Free Plan',
+        ].map((item) => (
+          <div
+            key={item}
+            className="flex items-start gap-2.5 text-xs text-navy-600"
+          >
+            <CheckCircle2
+              className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600"
+            />
+
+            <span>{item}</span>
+          </div>
+        ))}
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
 
       {/* =========================================================
           CONTINUE TO PAYMENT

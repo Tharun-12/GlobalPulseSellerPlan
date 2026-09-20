@@ -58,9 +58,13 @@ export async function getSellerPackage(): Promise<SellerPackageResponse> {
   const token = getSellerToken();
 
   if (!token) {
-    throw new Error(
+    const error = new Error(
       'Seller authentication token is missing.'
-    );
+    ) as Error & { status?: number };
+
+    error.status = 401;
+
+    throw error;
   }
 
   if (!API_URL) {
@@ -73,7 +77,6 @@ export async function getSellerPackage(): Promise<SellerPackageResponse> {
     `${API_URL}/api/seller/my-package`,
     {
       method: 'GET',
-
       headers: {
         Accept: 'application/json',
         Authorization: `Bearer ${token}`,
@@ -86,16 +89,24 @@ export async function getSellerPackage(): Promise<SellerPackageResponse> {
   try {
     data = await response.json();
   } catch {
-    throw new Error(
+    const error = new Error(
       'Invalid package response received from server.'
-    );
+    ) as Error & { status?: number };
+
+    error.status = response.status;
+
+    throw error;
   }
 
   if (!response.ok || !data.status) {
-    throw new Error(
+    const error = new Error(
       data.message ||
         'Unable to check seller package status.'
-    );
+    ) as Error & { status?: number };
+
+    error.status = response.status;
+
+    throw error;
   }
 
   return data;
