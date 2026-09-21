@@ -23,9 +23,28 @@ const DEFAULT_PACKAGE_ID = 11;
 ========================================================= */
 
 type RazorpayPaymentResponse = {
-  razorpay_payment_id: string;
-  razorpay_order_id: string;
-  razorpay_signature: string;
+  razorpay_payment_id?: string;
+  razorpay_order_id?: string;
+  razorpay_signature?: string;
+};
+
+/* =========================================================
+   RAZORPAY FAILURE TYPE
+========================================================= */
+
+type RazorpayFailureResponse = {
+  error?: {
+    code?: string;
+    description?: string;
+    source?: string;
+    step?: string;
+    reason?: string;
+
+    metadata?: {
+      order_id?: string;
+      payment_id?: string;
+    };
+  };
 };
 
 /* =========================================================
@@ -34,9 +53,15 @@ type RazorpayPaymentResponse = {
 
 declare global {
   interface Window {
-    Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
+    Razorpay: new (
+      options: RazorpayOptions
+    ) => RazorpayInstance;
   }
 }
+
+/* =========================================================
+   RAZORPAY OPTIONS
+========================================================= */
 
 type RazorpayOptions = {
   key: string;
@@ -61,12 +86,23 @@ type RazorpayOptions = {
   ) => void | Promise<void>;
 
   modal?: {
-    ondismiss?: () => void;
+    ondismiss?: () => void | Promise<void>;
   };
 };
 
+/* =========================================================
+   RAZORPAY INSTANCE
+========================================================= */
+
 type RazorpayInstance = {
   open: () => void;
+
+  on?: (
+    event: string,
+    callback: (
+      response: RazorpayFailureResponse
+    ) => void
+  ) => void;
 };
 
 /* =========================================================
@@ -75,6 +111,96 @@ type RazorpayInstance = {
 
 function getSellerToken(): string | null {
   return localStorage.getItem(SELLER_TOKEN_KEY);
+}
+
+/* =========================================================
+   SEND PAYMENT FAILURE EMAIL
+========================================================= */
+
+async function sendPaymentFailureEmail(params: {
+  packageName?: string;
+  paymentId?: string | null;
+  orderId?: string | null;
+  amount?: number | null;
+  reason: string;
+}): Promise<void> {
+  try {
+    const token = getSellerToken();
+
+    if (!API_URL || !token) {
+      console.warn(
+        'Unable to send payment failure email: API URL or seller token missing.'
+      );
+
+      return;
+    }
+
+    const response = await fetch(
+      `${API_URL}/api/seller/payment/communication`,
+      {
+        method: 'POST',
+
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+
+        body: JSON.stringify({
+          status: 'failed',
+
+          package_name:
+            params.packageName ||
+            'GlobPulse Seller Plan',
+
+          payment_id:
+            params.paymentId || null,
+
+          order_id:
+            params.orderId || null,
+
+          amount:
+            typeof params.amount === 'number'
+              ? params.amount
+              : null,
+
+          reason:
+            params.reason ||
+            'Payment was not completed.',
+        }),
+      }
+    );
+
+    let data: any = null;
+
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
+    }
+
+    if (!response.ok || !data?.status) {
+      console.error(
+        'Payment failure email API failed:',
+        data?.message ||
+          'Unable to send payment failure email.'
+      );
+
+      return;
+    }
+
+    console.log(
+      'Payment failure email sent successfully.'
+    );
+  } catch (error) {
+    /*
+     * Email failure must never break payment UI.
+     */
+    console.error(
+      'Payment failure email request failed:',
+      error
+    );
+  }
 }
 
 /* =========================================================
@@ -141,6 +267,7 @@ export async function startRazorpayPayment(
       onFailure(
         'Payment server URL is not configured.'
       );
+
       return;
     }
 
@@ -148,6 +275,7 @@ export async function startRazorpayPayment(
       onFailure(
         'Seller information is missing. Please login again.'
       );
+
       return;
     }
 
@@ -157,11 +285,94 @@ export async function startRazorpayPayment(
       onFailure(
         'Seller authentication has expired. Please login again.'
       );
+
       return;
     }
 
     const packageId =
       userInfo.packageId || DEFAULT_PACKAGE_ID;
+
+    /*
+     * Prevent duplicate failure emails.
+     *
+     * Razorpay can trigger more than one failure-related
+     * callback in some situations.
+     */
+    let failureAlreadyReported = false;
+
+    /*
+     * Payment values are populated after create-order.
+     */
+    let currentOrderId: string | null = null;
+    let currentPaymentId: string | null = null;
+    let currentAmountInr: number | null = null;
+
+    /* =====================================================
+       COMMON FAILURE HANDLER
+    ====================================================== */
+
+    const reportFailure = async (
+      reason: string,
+      paymentId?: string | null,
+      orderId?: string | null
+    ) => {
+      /*
+       * Always show the first failure to the UI.
+       */
+      if (failureAlreadyReported) {
+        return;
+      }
+
+      /*
+       * Mark immediately so two callbacks cannot
+       * send two emails.
+       */
+      failureAlreadyReported = true;
+
+      const finalPaymentId =
+        paymentId ||
+        currentPaymentId ||
+        null;
+
+      const finalOrderId =
+        orderId ||
+        currentOrderId ||
+        null;
+
+      const finalAmount =
+        typeof currentAmountInr === 'number'
+          ? currentAmountInr
+          : null;
+
+      /*
+       * Send email.
+       */
+      await sendPaymentFailureEmail({
+        packageName:
+          'GlobPulse Seller Plan',
+
+        paymentId:
+          finalPaymentId,
+
+        orderId:
+          finalOrderId,
+
+        amount:
+          finalAmount,
+
+        reason:
+          reason ||
+          'Payment was not completed.',
+      });
+
+      /*
+       * Show same reason in UI.
+       */
+      onFailure(
+        reason ||
+          'Payment was not completed.'
+      );
+    };
 
     /* =====================================================
        LOAD RAZORPAY
@@ -171,45 +382,61 @@ export async function startRazorpayPayment(
       await loadRazorpayScript();
 
     if (!razorpayLoaded) {
-      onFailure(
+      await reportFailure(
         'Unable to load Razorpay. Please check your internet connection and try again.'
       );
+
       return;
     }
 
     /* =====================================================
        CREATE RAZORPAY ORDER
-       
-       Backend route:
+
+       Backend:
        POST /api/seller/payment/create-order
     ====================================================== */
 
-    const orderRes = await fetch(
-      `${API_URL}/api/seller/payment/create-order`,
-      {
-        method: 'POST',
+    let orderRes: Response;
 
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+    try {
+      orderRes = await fetch(
+        `${API_URL}/api/seller/payment/create-order`,
+        {
+          method: 'POST',
 
-        body: JSON.stringify({
-          /*
-           * Backend requires amount for validation.
-           *
-           * For package 11 the backend itself calculates
-           * the actual amount using package price + GST.
-           */
-          amount: 999,
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
 
-          package_id: packageId,
+          body: JSON.stringify({
+            /*
+             * Backend package 11 calculates the actual
+             * ₹999 + GST amount itself.
+             */
+            amount: 999,
 
-          payment_mode: 'full',
-        }),
-      }
-    );
+            package_id:
+              packageId,
+
+            payment_mode:
+              'full',
+          }),
+        }
+      );
+    } catch (error) {
+      console.error(
+        'Create payment order request failed:',
+        error
+      );
+
+      await reportFailure(
+        'Unable to connect to the payment server while creating the payment order.'
+      );
+
+      return;
+    }
 
     /* =====================================================
        READ ORDER RESPONSE
@@ -218,24 +445,35 @@ export async function startRazorpayPayment(
     let orderData: any;
 
     try {
-      orderData = await orderRes.json();
+      orderData =
+        await orderRes.json();
     } catch {
-      onFailure(
-        'Invalid response received from payment server.'
+      await reportFailure(
+        'Invalid response received from the payment server while creating the payment order.'
       );
+
       return;
     }
 
-    if (!orderRes.ok || !orderData?.status) {
-      onFailure(
+    /* =====================================================
+       ORDER CREATION FAILED
+    ====================================================== */
+
+    if (
+      !orderRes.ok ||
+      !orderData?.status
+    ) {
+      const reason =
         orderData?.message ||
-          'Could not create payment order.'
-      );
+        'Could not create payment order.';
+
+      await reportFailure(reason);
+
       return;
     }
 
     /*
-     * Actual backend response is expected under:
+     * Backend response expected:
      *
      * orderData.data.order_id
      * orderData.data.amount
@@ -243,12 +481,14 @@ export async function startRazorpayPayment(
      * orderData.data.rzp_key
      */
 
-    const paymentData = orderData?.data;
+    const paymentData =
+      orderData?.data;
 
     if (!paymentData) {
-      onFailure(
-        'Payment order information is missing.'
+      await reportFailure(
+        'Payment order information is missing from the payment server response.'
       );
+
       return;
     }
 
@@ -264,27 +504,51 @@ export async function startRazorpayPayment(
     const razorpayKey =
       paymentData.rzp_key;
 
+    currentOrderId =
+      razorpayOrderId || null;
+
+    currentAmountInr =
+      Number.isFinite(amountInr) &&
+      amountInr > 0
+        ? amountInr
+        : null;
+
+    /* =====================================================
+       VALIDATE ORDER ID
+    ====================================================== */
+
     if (!razorpayOrderId) {
-      onFailure(
-        'Could not create Razorpay order.'
+      await reportFailure(
+        'Could not create a valid Razorpay order.'
       );
+
       return;
     }
+
+    /* =====================================================
+       VALIDATE PAYMENT AMOUNT
+    ====================================================== */
 
     if (
       !razorpayAmount ||
       razorpayAmount <= 0
     ) {
-      onFailure(
-        'Invalid payment amount received from server.'
+      await reportFailure(
+        'Invalid payment amount received from the payment server.'
       );
+
       return;
     }
 
+    /* =====================================================
+       VALIDATE RAZORPAY KEY
+    ====================================================== */
+
     if (!razorpayKey) {
-      onFailure(
+      await reportFailure(
         'Razorpay key was not returned by the payment server.'
       );
+
       return;
     }
 
@@ -292,197 +556,364 @@ export async function startRazorpayPayment(
        OPEN RAZORPAY
     ====================================================== */
 
-    const rzp = new window.Razorpay({
-      key: razorpayKey,
+    const rzp =
+      new window.Razorpay({
+        key: razorpayKey,
 
-      /*
-       * Razorpay expects amount in paise.
-       *
-       * Backend already returns amount in paise.
-       */
-      amount: razorpayAmount,
+        /*
+         * Backend returns paise.
+         */
+        amount:
+          razorpayAmount,
 
-      currency:
-        paymentData.currency || 'INR',
+        currency:
+          paymentData.currency ||
+          'INR',
 
-      name: 'GlobPulse',
+        name:
+          'GlobPulse',
 
-      description:
-         'GlobPulse Seller Plan — ₹999 + 18% GST',
+        description:
+          'GlobPulse Seller Plan — ₹999 + 18% GST',
 
-      order_id: razorpayOrderId,
+        order_id:
+          razorpayOrderId,
 
-      prefill: {
-        name: userInfo.name || '',
-        email: userInfo.email || '',
-        contact: userInfo.phone || '',
-      },
+        prefill: {
+          name:
+            userInfo.name || '',
 
-      theme: {
-        color: '#0a1f44',
-      },
+          email:
+            userInfo.email || '',
 
-      /* ===================================================
-         RAZORPAY SUCCESS
-      ==================================================== */
+          contact:
+            userInfo.phone || '',
+        },
 
-      handler: async (
-        response: RazorpayPaymentResponse
-      ) => {
-        try {
-          /* ===============================================
-             BASIC RAZORPAY RESPONSE VALIDATION
-          ============================================== */
+        theme: {
+          color:
+            '#0a1f44',
+        },
 
-          if (
-            !response?.razorpay_payment_id ||
-            !response?.razorpay_order_id ||
-            !response?.razorpay_signature
-          ) {
-            onFailure(
-              'Invalid payment response received from Razorpay.'
-            );
-            return;
-          }
+        /* =================================================
+           RAZORPAY SUCCESS
+        ================================================== */
 
-          /* ===============================================
-             VERIFY PAYMENT
-
-             Backend route:
-             POST /api/seller/payment/verify
-          ============================================== */
-
-          const verifyRes = await fetch(
-            `${API_URL}/api/seller/payment/verify`,
-            {
-              method: 'POST',
-
-              headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-                Authorization: `Bearer ${token}`,
-              },
-
-              body: JSON.stringify({
-                razorpay_payment_id:
-                  response.razorpay_payment_id,
-
-                razorpay_order_id:
-                  response.razorpay_order_id,
-
-                razorpay_signature:
-                  response.razorpay_signature,
-
-                package_id: packageId,
-
-                payment_mode: 'full',
-
-                /*
-                 * Backend validation requires amount.
-                 *
-                 * amount_inr is the actual INR amount
-                 * returned by create-order.
-                 */
-                amount:
-                  Number.isFinite(amountInr) &&
-                  amountInr > 0
-                    ? amountInr
-                    : razorpayAmount / 100,
-              }),
-            }
-          );
-
-          /* ===============================================
-             READ VERIFY RESPONSE
-          ============================================== */
-
-          let verifyData: any;
-
+        handler: async (
+          response: RazorpayPaymentResponse
+        ) => {
           try {
-            verifyData =
-              await verifyRes.json();
-          } catch {
-            onFailure(
-              'Invalid response received during payment verification.'
+            currentPaymentId =
+              response?.razorpay_payment_id ||
+              null;
+
+            currentOrderId =
+              response?.razorpay_order_id ||
+              currentOrderId;
+
+            /* =============================================
+               BASIC RESPONSE VALIDATION
+            ============================================= */
+
+            if (
+              !response?.razorpay_payment_id ||
+              !response?.razorpay_order_id ||
+              !response?.razorpay_signature
+            ) {
+              await reportFailure(
+                'Invalid payment response received from Razorpay.',
+                response?.razorpay_payment_id ||
+                  null,
+                response?.razorpay_order_id ||
+                  null
+              );
+
+              return;
+            }
+
+            /* =============================================
+               VERIFY PAYMENT
+            ============================================= */
+
+            let verifyRes: Response;
+
+            try {
+              verifyRes = await fetch(
+                `${API_URL}/api/seller/payment/verify`,
+                {
+                  method: 'POST',
+
+                  headers: {
+                    'Content-Type':
+                      'application/json',
+
+                    Accept:
+                      'application/json',
+
+                    Authorization:
+                      `Bearer ${token}`,
+                  },
+
+                  body: JSON.stringify({
+                    razorpay_payment_id:
+                      response.razorpay_payment_id,
+
+                    razorpay_order_id:
+                      response.razorpay_order_id,
+
+                    razorpay_signature:
+                      response.razorpay_signature,
+
+                    package_id:
+                      packageId,
+
+                    payment_mode:
+                      'full',
+
+                    /*
+                     * Backend validation requires amount.
+                     */
+                    amount:
+                      Number.isFinite(amountInr) &&
+                      amountInr > 0
+                        ? amountInr
+                        : razorpayAmount / 100,
+                  }),
+                }
+              );
+            } catch (error) {
+              console.error(
+                'Payment verification request failed:',
+                error
+              );
+
+              await reportFailure(
+                'Payment verification request failed. Please contact support if money was deducted.',
+                response.razorpay_payment_id,
+                response.razorpay_order_id
+              );
+
+              return;
+            }
+
+            /* =============================================
+               READ VERIFY RESPONSE
+            ============================================= */
+
+            let verifyData: any;
+
+            try {
+              verifyData =
+                await verifyRes.json();
+            } catch {
+              await reportFailure(
+                'Invalid response received during payment verification.',
+                response.razorpay_payment_id,
+                response.razorpay_order_id
+              );
+
+              return;
+            }
+
+            /* =============================================
+               PAYMENT VERIFICATION FAILED
+            ============================================= */
+
+            if (
+              !verifyRes.ok ||
+              !verifyData?.status
+            ) {
+              const failureReason =
+                verifyData?.message ||
+                'Payment verification failed.';
+
+              await reportFailure(
+                failureReason,
+
+                response.razorpay_payment_id,
+
+                response.razorpay_order_id
+              );
+
+              return;
+            }
+
+            /* =============================================
+               PAYMENT SUCCESS
+            ============================================= */
+
+            console.log(
+              'Payment verified successfully:',
+              verifyData
             );
-            return;
-          }
 
-          /* ===============================================
-             PAYMENT VERIFICATION FAILED
-          ============================================== */
+            /*
+             * IMPORTANT:
+             *
+             * Success email should be sent by Laravel
+             * inside verifyPayment() after DB::commit().
+             *
+             * Do NOT send the success email from React.
+             */
 
-          if (
-            !verifyRes.ok ||
-            !verifyData?.status
-          ) {
-            onFailure(
-              verifyData?.message ||
-                'Payment verification failed.'
+            onSuccess();
+
+          } catch (error) {
+            console.error(
+              'Payment verification error:',
+              error
             );
-            return;
+
+            await reportFailure(
+              'An unexpected error occurred while verifying the payment. Please contact support if money was deducted.',
+              response?.razorpay_payment_id ||
+                null,
+              response?.razorpay_order_id ||
+                null
+            );
           }
+        },
 
-          /* ===============================================
-             PAYMENT SUCCESS
-          ============================================== */
+        /* =================================================
+           RAZORPAY MODAL
+        ================================================== */
 
-          console.log(
-            'Payment verified successfully:',
-            verifyData
-          );
+        modal: {
+          ondismiss:
+            async () => {
+              await reportFailure(
+                'Payment cancelled by the seller.',
 
-          onSuccess();
-        } catch (error) {
-          console.error(
-            'Payment verification error:',
-            error
-          );
+                currentPaymentId,
 
-          onFailure(
-            'Verification request failed. Please contact support if money was deducted.'
+                currentOrderId
+              );
+            },
+        },
+      });
+
+    /* =====================================================
+       RAZORPAY PAYMENT FAILED EVENT
+    ====================================================== */
+
+    /*
+     * Razorpay can provide the actual failure reason here,
+     * for example:
+     *
+     * "Payment was declined by the bank"
+     *
+     * or:
+     *
+     * "Payment processing failed"
+     */
+
+    if (rzp.on) {
+      rzp.on(
+        'payment.failed',
+        async (
+          failureResponse: RazorpayFailureResponse
+        ) => {
+          const error =
+            failureResponse?.error;
+
+          const razorpayReason =
+            error?.description ||
+            error?.reason ||
+            error?.code ||
+            'Razorpay payment failed.';
+
+          const metadataPaymentId =
+            error?.metadata?.payment_id ||
+            null;
+
+          const metadataOrderId =
+            error?.metadata?.order_id ||
+            null;
+
+          currentPaymentId =
+            metadataPaymentId ||
+            currentPaymentId;
+
+          currentOrderId =
+            metadataOrderId ||
+            currentOrderId;
+
+          await reportFailure(
+            razorpayReason,
+
+            currentPaymentId,
+
+            currentOrderId
           );
         }
-      },
-
-      /* ===================================================
-         PAYMENT MODAL DISMISSED
-      ==================================================== */
-
-      modal: {
-        ondismiss: () => {
-          onFailure(
-            'Payment cancelled.'
-          );
-        },
-      },
-    });
+      );
+    }
 
     /* =====================================================
        OPEN PAYMENT WINDOW
     ====================================================== */
 
     rzp.open();
+
   } catch (error) {
     console.error(
       'Razorpay payment error:',
       error
     );
 
+    const message =
+      error instanceof Error
+        ? error.message
+        : '';
+
     if (
-      error instanceof TypeError &&
-      error.message
+      message
         .toLowerCase()
         .includes('fetch')
     ) {
+      await sendPaymentFailureEmail({
+        packageName:
+          'GlobPulse Seller Plan',
+
+        paymentId:
+          null,
+
+        orderId:
+          null,
+
+        amount:
+          1178.82,
+
+        reason:
+          'Unable to connect to the payment server.',
+      });
+
       onFailure(
         'Unable to connect to the payment server.'
       );
+
       return;
     }
 
+    await sendPaymentFailureEmail({
+      packageName:
+        'GlobPulse Seller Plan',
+
+      paymentId:
+        null,
+
+      orderId:
+        null,
+
+      amount:
+        1178.82,
+
+      reason:
+        'Something went wrong while starting the payment.',
+    });
+
     onFailure(
-      'Something went wrong while starting payment.'
+      'Something went wrong while starting the payment.'
     );
   }
 }
