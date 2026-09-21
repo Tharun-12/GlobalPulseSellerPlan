@@ -149,7 +149,7 @@ export function SellerLogin({
 
       console.log(
   '🔐 Login URL:',
-  `${API_URL}/api/seller/login`
+  `${API_URL}/api/seller/landing-login`
 );
 
 console.log(
@@ -158,7 +158,7 @@ console.log(
 );
 
 const response = await fetch(
-  `${API_URL}/api/seller/login`,
+  `${API_URL}/api/seller/landing-login`,
         {
           method: 'POST',
 
@@ -267,7 +267,7 @@ console.log(
       ====================================================== */
 
       localStorage.setItem(
-        'globpulse_seller_token',
+        'globpulse_landing_token',
         data.token
       );
 

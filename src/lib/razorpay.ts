@@ -8,7 +8,7 @@ export type UserInfo = {
 
 const API_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
-const SELLER_TOKEN_KEY = 'globpulse_seller_token';
+const SELLER_TOKEN_KEY = 'globpulse_landing_token';
 
 /*
  * Your ₹999 GlobPulse Seller Package
