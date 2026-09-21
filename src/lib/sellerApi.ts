@@ -1,60 +1,54 @@
 const API_URL =
   (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
-const LANDING_TOKEN_KEY = 'globpulse_landing_token';
+const SELLER_TOKEN_KEY = 'globpulse_seller_token';
 
 export type SellerPackageResponse = {
   status: boolean;
   message?: string;
 
-  seller?: {
-    id: number | string;
-    email?: string;
-    name?: string;
-    phone?: string | null;
+  data?: {
+    seller?: {
+      id: number | string;
 
-    package_id?: number | null;
-    pending_package_id?: number | null;
-    effective_package_id?: number | null;
+      package_id?: number | null;
+      pending_package_id?: number | null;
+      effective_package_id?: number | null;
 
-    plan_start_date?: string | null;
-    plan_expiry_date?: string | null;
-    pack_exp_date?: string | null;
+      plan_start_date?: string | null;
+      plan_expiry_date?: string | null;
+      days_left?: number | null;
 
-    days_left?: number | null;
+      payment_status?: string | null;
 
-    payment_status?: string | null;
+      paid_amount?: number;
+      pending_amount?: number;
 
-    paid_amount?: number;
-    pending_amount?: number;
-    paid_amount_with_gst?: number;
-    pending_amount_with_gst?: number;
+      paid_amount_with_gst?: number;
+      pending_amount_with_gst?: number;
+    };
+
+    package?: {
+      id: number | string;
+      package_name?: string;
+      subtitle?: string;
+
+      price?: number;
+      offer_price?: number;
+      mrp_price?: number;
+
+      is_active?: boolean;
+    };
   };
-
-  package?: {
-    id: number | string;
-    package_name?: string;
-    subtitle?: string;
-    price?: number;
-    offer_price?: number;
-    mrp_price?: number;
-    is_active?: boolean;
-  };
-
-  package_id?: number | null;
-  pack_exp_date?: string | null;
-  payment_status?: string | null;
 };
 
-
 /* =========================================================
-   GET LANDING AUTH TOKEN
+   GET AUTH TOKEN
 ========================================================= */
 
 export function getSellerToken(): string | null {
-  return localStorage.getItem(LANDING_TOKEN_KEY);
+  return localStorage.getItem(SELLER_TOKEN_KEY);
 }
-
 
 /* =========================================================
    CHECK CURRENT SELLER PACKAGE
@@ -80,10 +74,9 @@ export async function getSellerPackage(): Promise<SellerPackageResponse> {
   }
 
   const response = await fetch(
-    `${API_URL}/api/seller/landing-my-package`,
+    `${API_URL}/api/seller/my-package`,
     {
       method: 'GET',
-
       headers: {
         Accept: 'application/json',
         Authorization: `Bearer ${token}`,
@@ -119,60 +112,6 @@ export async function getSellerPackage(): Promise<SellerPackageResponse> {
   return data;
 }
 
-
-/* =========================================================
-   LANDING PAGE LOGOUT
-========================================================= */
-
-export async function logoutSeller(): Promise<void> {
-  const token = getSellerToken();
-
-  /*
-   * If there is no token, simply clear local auth.
-   */
-  if (!token) {
-    localStorage.removeItem(LANDING_TOKEN_KEY);
-    return;
-  }
-
-  if (!API_URL) {
-    localStorage.removeItem(LANDING_TOKEN_KEY);
-    return;
-  }
-
-  try {
-    await fetch(
-      `${API_URL}/api/seller/landing-logout`,
-      {
-        method: 'POST',
-
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-  } catch (error) {
-    /*
-     * Even if the server is unreachable,
-     * clear the local landing session.
-     */
-    console.error(
-      'Landing logout request failed:',
-      error
-    );
-  } finally {
-    localStorage.removeItem(LANDING_TOKEN_KEY);
-    localStorage.removeItem('globpulse_seller');
-    localStorage.removeItem('globpulse_checkout_state');
-
-    window.dispatchEvent(
-      new Event('globpulse-auth-changed')
-    );
-  }
-}
-
-
 /* =========================================================
    CHECK ₹999 PACKAGE
 ========================================================= */
@@ -180,9 +119,8 @@ export async function logoutSeller(): Promise<void> {
 export function is999PlanActive(
   response: SellerPackageResponse
 ): boolean {
-
-  const seller = response.seller;
-  const packageData = response.package;
+  const seller = response.data?.seller;
+  const packageData = response.data?.package;
 
   /*
    * No seller information means we cannot
@@ -215,6 +153,9 @@ export function is999PlanActive(
 
   /*
    * Effective package.
+   *
+   * This is useful with your existing package
+   * / partial-payment logic.
    */
   const effectivePackageId = Number(
     seller.effective_package_id || 0
@@ -244,6 +185,10 @@ export function is999PlanActive(
      VERIFY PACKAGE IS ACTIVE
   ======================================================== */
 
+  /*
+   * If Laravel explicitly says the package is inactive,
+   * do not treat it as an active ₹999 plan.
+   */
   if (packageData.is_active === false) {
     return false;
   }
@@ -253,13 +198,12 @@ export function is999PlanActive(
   ======================================================== */
 
   const paymentStatus = String(
-    seller.payment_status ||
-      response.payment_status ||
-      'full'
-  )
-    .toLowerCase()
-    .trim();
+    seller.payment_status || 'full'
+  ).toLowerCase().trim();
 
+  /*
+   * The seller must have completed payment.
+   */
   if (paymentStatus !== 'full') {
     return false;
   }
@@ -268,15 +212,14 @@ export function is999PlanActive(
      VERIFY PLAN EXPIRY
   ======================================================== */
 
-  const expiryDate =
-    seller.plan_expiry_date ||
-    seller.pack_exp_date ||
-    response.pack_exp_date ||
-    null;
-
-  if (expiryDate) {
-
-    const expiry = new Date(expiryDate);
+  /*
+   * If an expiry date exists, make sure it has
+   * not already expired.
+   */
+  if (seller.plan_expiry_date) {
+    const expiry = new Date(
+      seller.plan_expiry_date
+    );
 
     /*
      * Invalid expiry date should not be treated

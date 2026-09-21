@@ -18,7 +18,7 @@ type HeaderProps = {
   onDashboardClick: () => void;
 };
 
-const SELLER_TOKEN_KEY = 'globpulse_landing_token';
+const SELLER_TOKEN_KEY = 'globpulse_seller_token';
 
 const API_URL =
   (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');

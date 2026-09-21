@@ -1,10 +1,9 @@
 import {
   getSellerPackage,
   is999PlanActive,
-  logoutSeller as logoutLandingSeller,
 } from './sellerApi';
 
-const TOKEN_KEY = 'globpulse_landing_token';
+const TOKEN_KEY = 'globpulse_seller_token';
 const SELLER_KEY = 'globpulse_seller';
 const CHECKOUT_STATE_KEY = 'globpulse_checkout_state';
 
@@ -13,19 +12,9 @@ type SellerAuthResult = {
   packageActive: boolean;
 };
 
-
-/* =========================================================
-   GET LANDING SELLER TOKEN
-========================================================= */
-
 export function getSellerToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
-
-
-/* =========================================================
-   CLEAR LOCAL LANDING AUTH
-========================================================= */
 
 export function clearSellerAuth(): void {
   localStorage.removeItem(TOKEN_KEY);
@@ -37,22 +26,7 @@ export function clearSellerAuth(): void {
   );
 }
 
-
-/* =========================================================
-   LOGOUT LANDING SELLER
-========================================================= */
-
-export async function logoutSeller(): Promise<void> {
-  await logoutLandingSeller();
-}
-
-
-/* =========================================================
-   VALIDATE LANDING SELLER AUTH
-========================================================= */
-
 export async function validateSellerAuth(): Promise<SellerAuthResult> {
-
   const token = getSellerToken();
 
   if (!token) {
@@ -63,36 +37,29 @@ export async function validateSellerAuth(): Promise<SellerAuthResult> {
   }
 
   try {
-
     const packageResponse =
       await getSellerPackage();
 
     return {
       authenticated: true,
-
       packageActive:
         is999PlanActive(packageResponse),
     };
-
   } catch (error) {
-
     const status =
       error instanceof Error
-        ? (error as Error & {
-            status?: number;
-          }).status
+        ? (error as Error & { status?: number }).status
         : undefined;
 
     /*
-     * 401 = landing token is invalid/revoked.
+     * 401 = token is invalid/revoked.
      *
      * Examples:
-     * - landing seller logged out
-     * - landing token was revoked
-     * - token no longer exists
+     * - seller logged out from Laravel
+     * - seller changed password
+     * - token was revoked
      */
     if (status === 401) {
-
       clearSellerAuth();
 
       return {
@@ -106,7 +73,6 @@ export async function validateSellerAuth(): Promise<SellerAuthResult> {
      * but no package exists.
      */
     if (status === 404) {
-
       return {
         authenticated: true,
         packageActive: false,
@@ -118,7 +84,6 @@ export async function validateSellerAuth(): Promise<SellerAuthResult> {
      * but access is currently forbidden.
      */
     if (status === 403) {
-
       return {
         authenticated: true,
         packageActive: false,

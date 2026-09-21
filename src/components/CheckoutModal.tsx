@@ -110,7 +110,7 @@ export function CheckoutModal({
   useState(() => {
     try {
       const token = localStorage.getItem(
-        'globpulse_landing_token'
+        'globpulse_seller_token'
       );
 
       const saved = localStorage.getItem(
@@ -135,7 +135,7 @@ export function CheckoutModal({
   const validateSavedActivePackage = async () => {
     try {
       const token = localStorage.getItem(
-        'globpulse_landing_token'
+        'globpulse_seller_token'
       );
 
       const saved = localStorage.getItem(
