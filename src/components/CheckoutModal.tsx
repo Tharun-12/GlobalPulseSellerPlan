@@ -31,6 +31,84 @@ import { SellerSignupOtp } from '@/components/auth/SellerSignupOtp';
 
 const CHECKOUT_STATE_KEY = 'globpulse_checkout_state';
 
+const createSellerWebSession = async (): Promise<string | null> => {
+  const apiUrl =
+    (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
+  const token =
+    localStorage.getItem('globpulse_seller_token');
+
+  console.log('🔗 Laravel API URL:', apiUrl);
+  console.log('🔑 Seller token exists:', !!token);
+
+  if (!apiUrl) {
+    console.error('VITE_API_URL is not configured.');
+    return null;
+  }
+
+  if (!token) {
+    console.error('Seller API token is missing.');
+    return null;
+  }
+
+  try {
+    const response = await fetch(
+      `${apiUrl}/seller/session-bridge`,
+      {
+        method: 'POST',
+
+        credentials: 'include',
+
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log(
+      '🔐 Session bridge status:',
+      response.status
+    );
+
+    const data = await response.json();
+
+    console.log(
+      '🔐 Session bridge response:',
+      data
+    );
+
+    if (!response.ok || !data?.status) {
+      console.error(
+        '❌ Seller web session creation failed:',
+        data?.message
+      );
+
+      return null;
+    }
+
+    console.log(
+      '✅ Seller Laravel session created successfully.'
+    );
+
+    console.log(
+      '➡️ Laravel redirect:',
+      data.redirect
+    );
+
+    return data.redirect || `${apiUrl}/seller/dashboard`;
+
+  } catch (error) {
+
+    console.error(
+      '❌ Seller session bridge request failed:',
+      error
+    );
+
+    return null;
+  }
+};
+
 /* =============================================================
    PROPS
 ============================================================= */
@@ -1154,23 +1232,33 @@ return (
 
                   {step === 'already-active' && seller && (
 
-                    <AlreadyActive
-                      sellerName={seller.fullName}
+  <AlreadyActive
+    sellerName={seller.fullName}
 
-                      onContinue={() => {
-                        const apiUrl =
-                            (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+ onContinue={async () => {
 
-                        if (!apiUrl) {
-                            console.error('VITE_API_URL is not configured.');
-                            return;
-                        }
+  const redirectUrl =
+    await createSellerWebSession();
 
-                        window.location.href = `${apiUrl}/seller/dashboard`;
-                        }}
-                    />
+  if (!redirectUrl) {
 
-                  )}
+    setErrorMsg(
+      'Unable to open Seller Dashboard. Please try again.'
+    );
+
+    return;
+  }
+
+  console.log(
+    '➡️ Redirecting seller to:',
+    redirectUrl
+  );
+
+  window.location.href = redirectUrl;
+}}
+/>
+
+)}
 
 
                   {/* =================================================

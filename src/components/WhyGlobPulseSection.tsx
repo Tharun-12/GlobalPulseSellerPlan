@@ -100,183 +100,323 @@
 // }
 
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState, useCallback } from 'react';
-import { Monitor, Search, Building2, Network, ChevronLeft, ChevronRight } from 'lucide-react';
+// import { motion, AnimatePresence } from 'framer-motion';
+// import { useEffect, useState, useCallback } from 'react';
+// import { Monitor, Search, Building2, Network, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const features = [
+// const features = [
+//   {
+//     icon: Building2,
+//     title: 'Build Your Business Presence',
+//     description:
+//       'Create a professional seller profile on GlobPulse to present your business to international buyers on a B2B marketplace for manufacturers and suppliers.',
+//   },
+//   {
+//     icon: Search,
+//     title: 'Explore Buyer Opportunities',
+//     description:
+//       'Use your Buyer Credits to explore buyer and business opportunities and connect with global trade partners looking for products like yours.',
+//   },
+//   {
+//     icon: Monitor,
+//     title: 'Showcase Your Products',
+//     description:
+//       'List your products on the GlobPulse B2B platform to showcase them to international buyers and find buyers for export products.',
+//   },
+//   {
+//     icon: Network,
+//     title: 'Connect with Global Buyers',
+//     description:
+//       'GlobPulse is a B2B platform for Indian manufacturers, suppliers, and exporters to connect with global buyers and explore international business opportunities.',
+//   },
+// ];
+
+// export function WhyGlobPulseSection() {
+//   const [activeIndex, setActiveIndex] = useState(0);
+//   const [direction, setDirection] = useState(1);
+
+//   const goTo = useCallback((index: number, dir: number) => {
+//     setDirection(dir);
+//     setActiveIndex((index + features.length) % features.length);
+//   }, []);
+
+//   const next = useCallback(() => goTo(activeIndex + 1, 1), [activeIndex, goTo]);
+//   const prev = useCallback(() => goTo(activeIndex - 1, -1), [activeIndex, goTo]);
+
+//   useEffect(() => {
+//     const interval = setInterval(() => {
+//       setDirection(1);
+//       setActiveIndex((prev) => (prev + 1) % features.length);
+//     }, 3500);
+//     return () => clearInterval(interval);
+//   }, []);
+
+//   const activeFeature = features[activeIndex];
+
+//   return (
+//     <section id="why-globpulse" className="py-20 lg:py-28 bg-navy-900 relative overflow-hidden">
+//       {/* Background pattern */}
+//       <div className="absolute inset-0 bg-grid-pattern opacity-20" />
+//       <div className="absolute top-1/3 right-0 w-[500px] h-[500px] bg-navy-500/10 rounded-full blur-[120px]" />
+
+//       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+//         {/* Heading */}
+//         <div className="text-center max-w-3xl mx-auto">
+//           <motion.p
+//             initial={{ opacity: 0, y: 10 }}
+//             whileInView={{ opacity: 1, y: 0 }}
+//             viewport={{ once: true }}
+//             transition={{ duration: 0.5 }}
+//             className="text-sm font-semibold uppercase tracking-[0.2em] text-gold-400 mb-3"
+//           >
+//             Why GlobPulse?
+//           </motion.p>
+//           <motion.h2
+//             initial={{ opacity: 0, y: 20 }}
+//             whileInView={{ opacity: 1, y: 0 }}
+//             viewport={{ once: true }}
+//             transition={{ duration: 0.6, delay: 0.1 }}
+//             className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-[1.15] text-balance"
+//           >
+//             See how GlobPulse helps sellers build their presence and explore global business opportunities
+//           </motion.h2>
+//         </div>
+
+//         {/* Two column layout — 60% / 35% split, both equal height */}
+//         <div className="mt-16 grid lg:grid-cols-[60fr_35fr] gap-5 lg:gap-8 items-stretch">
+//           {/* Left: 60% — Carousel (defines the row height) */}
+//           <div className="flex flex-col">
+//             {/* Card container with fixed height — this sets the height for BOTH sides */}
+//             <div className="relative h-[420px] sm:h-[460px]">
+//               <AnimatePresence mode="wait" custom={direction}>
+//                 <motion.div
+//                   key={activeIndex}
+//                   custom={direction}
+//                   initial={{ opacity: 0, x: direction * -50 }}
+//                   animate={{ opacity: 1, x: 0 }}
+//                   exit={{ opacity: 0, x: direction * 50 }}
+//                   transition={{ duration: 0.5, ease: 'easeInOut' }}
+//                   className="absolute inset-0"
+//                 >
+//                   <div className="h-full rounded-2xl bg-navy-800/50 border border-navy-700/50 p-8 hover:border-gold-400/30 hover:bg-navy-800 transition-all duration-300 flex flex-col">
+//                     <div className="w-14 h-14 rounded-xl bg-navy-700/50 flex items-center justify-center flex-shrink-0">
+//                       <activeFeature.icon className="w-7 h-7 text-gold-400" />
+//                     </div>
+//                     <h3 className="mt-6 font-display text-2xl font-bold text-white">
+//                       {activeFeature.title}
+//                     </h3>
+//                     <p className="mt-4 text-base text-navy-300 leading-relaxed">
+//                       {activeFeature.description}
+//                     </p>
+//                   </div>
+//                 </motion.div>
+//               </AnimatePresence>
+//             </div>
+
+//             {/* Arrows + Dots */}
+//             <div className="mt-6 flex items-center justify-center gap-4">
+//               <button
+//                 onClick={prev}
+//                 aria-label="Previous slide"
+//                 className="w-10 h-10 rounded-full bg-navy-800/70 border border-navy-700/50 flex items-center justify-center text-navy-200 hover:bg-gold-400 hover:text-navy-900 hover:border-gold-400 transition-all duration-300"
+//               >
+//                 <ChevronLeft className="w-5 h-5" />
+//               </button>
+
+//               <div className="flex items-center gap-2">
+//                 {features.map((_, i) => (
+//                   <button
+//                     key={i}
+//                     onClick={() => goTo(i, i > activeIndex ? 1 : -1)}
+//                     aria-label={`Go to slide ${i + 1}`}
+//                     className={`h-2 rounded-full transition-all duration-300 ${
+//                       i === activeIndex ? 'w-8 bg-gold-400' : 'w-2 bg-navy-600 hover:bg-navy-500'
+//                     }`}
+//                   />
+//                 ))}
+//               </div>
+
+//               <button
+//                 onClick={next}
+//                 aria-label="Next slide"
+//                 className="w-10 h-10 rounded-full bg-navy-800/70 border border-navy-700/50 flex items-center justify-center text-navy-200 hover:bg-gold-400 hover:text-navy-900 hover:border-gold-400 transition-all duration-300"
+//               >
+//                 <ChevronRight className="w-5 h-5" />
+//               </button>
+//             </div>
+//           </div>
+
+//           {/* Right: 35% — Static image, same height as card only */}
+//           <motion.div
+//             initial={{ opacity: 0, x: 40 }}
+//             whileInView={{ opacity: 1, x: 0 }}
+//             viewport={{ once: true }}
+//             transition={{ duration: 0.6 }}
+//             className="flex items-start"
+//           >
+//             <img
+//               src="https://i.pinimg.com/1200x/8a/72/ea/8a72eae989508f49244da3c9824fcf6a.jpg"
+//               alt="Global B2B trade and business connections on GlobPulse"
+//               className="w-full h-[420px] sm:h-[460px] object-cover rounded-2xl"
+//               loading="lazy"
+//             />
+//           </motion.div>
+//         </div>
+
+//         {/* Disclaimer */}
+//         <motion.div
+//           initial={{ opacity: 0 }}
+//           whileInView={{ opacity: 1 }}
+//           viewport={{ once: true }}
+//           transition={{ duration: 0.6, delay: 0.3 }}
+//           className="mt-16 text-center"
+//         >
+//           <p className="text-sm text-navy-400 max-w-2xl mx-auto">
+//             GlobPulse provides access to business opportunities and buyer-seller connections. Actual
+//             enquiries and orders depend on factors such as product demand, pricing, business profile
+//             and buyer requirements.
+//           </p>
+//         </motion.div>
+//       </div>
+//     </section>
+//   );
+// }
+
+import { motion } from 'framer-motion';
+import {
+  BadgeCheck,
+  BrainCircuit,
+  Globe2,
+  ArrowUpRight,
+} from 'lucide-react';
+
+const items = [
   {
-    icon: Building2,
-    title: 'Build Your Business Presence',
+    icon: BadgeCheck,
+    title: 'Verified Suppliers',
     description:
-      'Create a professional seller profile on GlobPulse to present your business to international buyers on a B2B marketplace for manufacturers and suppliers.',
+      'Connect with verified businesses and explore trusted supplier opportunities through GlobPulse.',
+    image:
+      'https://globpulsebita.gfeworldwide.com/vibrant-home/assets/supplier-factory.jpg',
   },
   {
-    icon: Search,
-    title: 'Explore Buyer Opportunities',
+    icon: BrainCircuit,
+    title: 'Smart Matching',
     description:
-      'Use your Buyer Credits to explore buyer and business opportunities and connect with global trade partners looking for products like yours.',
+      'Discover relevant buyer and trade opportunities and connect with businesses across markets.',
+    image:
+      'https://globpulsebita.gfeworldwide.com/vibrant-home/assets/globe1.jpg',
   },
   {
-    icon: Monitor,
-    title: 'Showcase Your Products',
+    icon: Globe2,
+    title: 'Global Trade Network',
     description:
-      'List your products on the GlobPulse B2B platform to showcase them to international buyers and find buyers for export products.',
-  },
-  {
-    icon: Network,
-    title: 'Connect with Global Buyers',
-    description:
-      'GlobPulse is a B2B platform for Indian manufacturers, suppliers, and exporters to connect with global buyers and explore international business opportunities.',
+      'Build your business presence and explore international markets through one B2B platform.',
+    image:
+      'https://globpulsebita.gfeworldwide.com/vibrant-home/assets/trade-globe.jpg',
   },
 ];
 
 export function WhyGlobPulseSection() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [direction, setDirection] = useState(1);
-
-  const goTo = useCallback((index: number, dir: number) => {
-    setDirection(dir);
-    setActiveIndex((index + features.length) % features.length);
-  }, []);
-
-  const next = useCallback(() => goTo(activeIndex + 1, 1), [activeIndex, goTo]);
-  const prev = useCallback(() => goTo(activeIndex - 1, -1), [activeIndex, goTo]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDirection(1);
-      setActiveIndex((prev) => (prev + 1) % features.length);
-    }, 3500);
-    return () => clearInterval(interval);
-  }, []);
-
-  const activeFeature = features[activeIndex];
-
   return (
-    <section id="why-globpulse" className="py-20 lg:py-28 bg-navy-900 relative overflow-hidden">
-      {/* Background pattern */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-20" />
-      <div className="absolute top-1/3 right-0 w-[500px] h-[500px] bg-navy-500/10 rounded-full blur-[120px]" />
+    <section
+      id="why-globpulse"
+      className="py-10 sm:py-12 lg:py-14 bg-navy-950"
+    >
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Heading */}
-        <div className="text-center max-w-3xl mx-auto">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-sm font-semibold uppercase tracking-[0.2em] text-gold-400 mb-3"
-          >
-            Why GlobPulse?
-          </motion.p>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-[1.15] text-balance"
-          >
-            See how GlobPulse helps sellers build their presence and explore global business opportunities
-          </motion.h2>
-        </div>
-
-        {/* Two column layout — 60% / 35% split, both equal height */}
-        <div className="mt-16 grid lg:grid-cols-[60fr_35fr] gap-5 lg:gap-8 items-stretch">
-          {/* Left: 60% — Carousel (defines the row height) */}
-          <div className="flex flex-col">
-            {/* Card container with fixed height — this sets the height for BOTH sides */}
-            <div className="relative h-[420px] sm:h-[460px]">
-              <AnimatePresence mode="wait" custom={direction}>
-                <motion.div
-                  key={activeIndex}
-                  custom={direction}
-                  initial={{ opacity: 0, x: direction * -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: direction * 50 }}
-                  transition={{ duration: 0.5, ease: 'easeInOut' }}
-                  className="absolute inset-0"
-                >
-                  <div className="h-full rounded-2xl bg-navy-800/50 border border-navy-700/50 p-8 hover:border-gold-400/30 hover:bg-navy-800 transition-all duration-300 flex flex-col">
-                    <div className="w-14 h-14 rounded-xl bg-navy-700/50 flex items-center justify-center flex-shrink-0">
-                      <activeFeature.icon className="w-7 h-7 text-gold-400" />
-                    </div>
-                    <h3 className="mt-6 font-display text-2xl font-bold text-white">
-                      {activeFeature.title}
-                    </h3>
-                    <p className="mt-4 text-base text-navy-300 leading-relaxed">
-                      {activeFeature.description}
-                    </p>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {/* Arrows + Dots */}
-            <div className="mt-6 flex items-center justify-center gap-4">
-              <button
-                onClick={prev}
-                aria-label="Previous slide"
-                className="w-10 h-10 rounded-full bg-navy-800/70 border border-navy-700/50 flex items-center justify-center text-navy-200 hover:bg-gold-400 hover:text-navy-900 hover:border-gold-400 transition-all duration-300"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-
-              <div className="flex items-center gap-2">
-                {features.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => goTo(i, i > activeIndex ? 1 : -1)}
-                    aria-label={`Go to slide ${i + 1}`}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      i === activeIndex ? 'w-8 bg-gold-400' : 'w-2 bg-navy-600 hover:bg-navy-500'
-                    }`}
-                  />
-                ))}
-              </div>
-
-              <button
-                onClick={next}
-                aria-label="Next slide"
-                className="w-10 h-10 rounded-full bg-navy-800/70 border border-navy-700/50 flex items-center justify-center text-navy-200 hover:bg-gold-400 hover:text-navy-900 hover:border-gold-400 transition-all duration-300"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Right: 35% — Static image, same height as card only */}
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="flex items-start"
-          >
-            <img
-              src="https://i.pinimg.com/1200x/8a/72/ea/8a72eae989508f49244da3c9824fcf6a.jpg"
-              alt="Global B2B trade and business connections on GlobPulse"
-              className="w-full h-[420px] sm:h-[460px] object-cover rounded-2xl"
-              loading="lazy"
-            />
-          </motion.div>
-        </div>
-
-        {/* Disclaimer */}
         <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-16 text-center"
+          transition={{ duration: 0.4 }}
+          className="text-center max-w-2xl mx-auto"
         >
-          <p className="text-sm text-navy-400 max-w-2xl mx-auto">
-            GlobPulse provides access to business opportunities and buyer-seller connections. Actual
-            enquiries and orders depend on factors such as product demand, pricing, business profile
-            and buyer requirements.
+          <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-gold-400">
+            Why GlobPulse
+          </span>
+
+          <h2 className="mt-2 text-2xl sm:text-3xl font-bold text-white">
+            Built for Global Trade
+          </h2>
+
+          <p className="mt-2 text-sm text-navy-300">
+            Connect with verified businesses, discover opportunities and
+            explore global markets through GlobPulse.
           </p>
         </motion.div>
+
+        {/* Cards */}
+        <div className="mt-7 grid grid-cols-1 md:grid-cols-3 gap-4">
+
+          {items.map((item, index) => {
+            const Icon = item.icon;
+
+            return (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{
+                  duration: 0.4,
+                  delay: index * 0.08,
+                }}
+                className="group overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] hover:border-gold-400/30 transition-all duration-300"
+              >
+
+                {/* Real Laravel image */}
+                <div className="h-32 sm:h-36 overflow-hidden">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                </div>
+
+                {/* Content */}
+                <div className="p-4">
+
+                  <div className="flex items-center justify-between">
+                    <div className="w-9 h-9 rounded-lg bg-gold-400/10 border border-gold-400/20 flex items-center justify-center">
+                      <Icon className="w-4 h-4 text-gold-400" />
+                    </div>
+
+                    <ArrowUpRight className="w-4 h-4 text-white/30 group-hover:text-gold-400 transition-colors" />
+                  </div>
+
+                  <h3 className="mt-3 text-base font-semibold text-white">
+                    {item.title}
+                  </h3>
+
+                  <p className="mt-1.5 text-xs sm:text-sm leading-5 text-navy-300">
+                    {item.description}
+                  </p>
+
+                </div>
+              </motion.div>
+            );
+          })}
+
+        </div>
+
+        {/* Compact stats */}
+        <div className="mt-5 flex flex-wrap justify-center gap-x-7 gap-y-2 text-xs text-white/50">
+          <span>
+            <strong className="text-white">50+</strong> Countries Connected
+          </span>
+
+          <span>
+            <strong className="text-white">10K+</strong> Verified Suppliers
+          </span>
+
+          <span>
+            <strong className="text-white">500K+</strong> Products Listed
+          </span>
+        </div>
+
       </div>
     </section>
   );

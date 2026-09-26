@@ -210,21 +210,51 @@ const handleSellerDashboardClick = useCallback(() => {
     };
   }, [checkSellerStatus]);
 
-  const goToSellerDashboard = useCallback(() => {
-    const apiUrl =
-      (import.meta.env.VITE_API_URL || '')
-        .replace(/\/$/, '');
+const goToSellerDashboard = useCallback(async () => {
+  const apiUrl = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+  const token = localStorage.getItem('globpulse_seller_token');
 
-    if (!apiUrl) {
-      console.error(
-        'VITE_API_URL is not configured.'
-      );
+  if (!apiUrl) {
+    console.error('VITE_API_URL is not configured.');
+    return;
+  }
+
+  if (!token) {
+    console.error('Seller API token is missing.');
+    window.location.href = `${apiUrl}/seller/login`;
+    return;
+  }
+
+  try {
+    console.log('🔐 Creating Laravel seller web session...');
+
+    const response = await fetch(`${apiUrl}/seller/session-bridge`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    console.log('🔐 Session bridge response:', data);
+
+    if (!response.ok || !data.status) {
+      console.error('❌ Session bridge failed:', data);
       return;
     }
 
-    window.location.href =
-      `${apiUrl}/seller/dashboard`;
-  }, []);
+    console.log('✅ Laravel web session created.');
+    console.log('➡️ Redirecting to:', data.redirect);
+
+    window.location.href = data.redirect || `${apiUrl}/seller/dashboard`;
+  } catch (error) {
+    console.error('❌ Session bridge error:', error);
+  }
+}, []);
 
 const handleGetStarted = useCallback(() => {
   setCheckoutOpen(true);
@@ -250,6 +280,8 @@ const handleGetStarted = useCallback(() => {
   hasActive999Package={hasActive999Package}
 />
 
+ {/* <PlatformVideo /> */}
+
         <BenefitsSection
           onGetStarted={handleGetStarted}
            onDashboardClick={handleSellerDashboardClick}
@@ -264,9 +296,9 @@ const handleGetStarted = useCallback(() => {
 
         <WhyGlobPulseSection />
 
-        <PlatformVideo />
+       
 
-        <PlatformScreenshots />
+        {/* <PlatformScreenshots /> */}
 
         <TestimonialsSection />
 
@@ -337,24 +369,10 @@ const handleGetStarted = useCallback(() => {
     event.stopPropagation();
   }}
 >
-      <AlreadyActive
-        sellerName={getLoggedInSellerName()}
-        onContinue={() => {
-          const apiUrl =
-            (import.meta.env.VITE_API_URL || '')
-              .replace(/\/$/, '');
-
-          if (!apiUrl) {
-            console.error(
-              'VITE_API_URL is not configured.'
-            );
-            return;
-          }
-
-          window.location.href =
-            `${apiUrl}/seller/dashboard`;
-        }}
-      />
+   <AlreadyActive
+  sellerName={getLoggedInSellerName()}
+  onContinue={goToSellerDashboard}
+/>
     </div>
   </div>
 )}

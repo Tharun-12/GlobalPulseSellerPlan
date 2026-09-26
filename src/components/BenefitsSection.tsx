@@ -81,34 +81,69 @@ type Benefit = {
   description: string;
 };
 
+// export const benefits: Benefit[] = [
+//   {
+//     icon: GraduationCap,
+//     image: 'https://i.pinimg.com/736x/f0/90/5b/f0905b869c6f0910cebc9b1981487d75.jpg',
+//     title: 'Export-Import Course',
+//     description:
+//       'Recorded Export-Import Course access through the LMS to help you understand the fundamentals of international trade.',
+//   },
+//   {
+//     icon: Users,
+//     image: 'https://i.pinimg.com/236x/3e/d0/88/3ed088bc9d1c67214ec0ec6266ca63ae.jpg',
+//     title: '50 Buyer Credits',
+//     description:
+//       'Access buyer opportunities through GlobPulse. [PRODUCT TEAM CONFIRMATION REQUIRED — exact functionality of Buyer Credits to be confirmed]',
+//   },
+//   {
+//     icon: Briefcase,
+//     image: 'https://i.pinimg.com/736x/6f/bd/dc/6fbddcfc0ef45c18d112365054b6fdec.jpg',
+//     title: 'Logo + Letterhead + Website',
+//     description:
+//       'Professional business assets including a custom logo, letterhead, and 1-month website access to present your business.',
+//   },
+//   {
+//     icon: Globe,
+//     image: 'https://i.pinimg.com/736x/53/dd/c0/53ddc0c785f27223723d8f501236610e.jpg',
+//     title: 'GlobPulse Free Plan',
+//     description:
+//       '1 year of GlobPulse Free Plan access to build your presence on the B2B marketplace and explore global business opportunities.',
+//   },
+// ];
+
 export const benefits: Benefit[] = [
   {
     icon: GraduationCap,
-    image: 'https://i.pinimg.com/736x/f0/90/5b/f0905b869c6f0910cebc9b1981487d75.jpg',
+    image:
+      'https://globpulsebita.gfeworldwide.com/vibrant-home/assets/supplier-textile.jpg',
     title: 'Export-Import Course',
     description:
       'Recorded Export-Import Course access through the LMS to help you understand the fundamentals of international trade.',
   },
   {
     icon: Users,
-    image: 'https://i.pinimg.com/236x/3e/d0/88/3ed088bc9d1c67214ec0ec6266ca63ae.jpg',
+    image:
+      'https://globpulsebita.gfeworldwide.com/vibrant-home/assets/globe1.jpg',
     title: '50 Buyer Credits',
     description:
-      'Access buyer opportunities through GlobPulse. [PRODUCT TEAM CONFIRMATION REQUIRED — exact functionality of Buyer Credits to be confirmed]',
+      'Access buyer opportunities through GlobPulse and explore potential international business connections.',
   },
   {
     icon: Briefcase,
-    image: 'https://i.pinimg.com/736x/6f/bd/dc/6fbddcfc0ef45c18d112365054b6fdec.jpg',
+    image:
+      'https://globpulsebita.gfeworldwide.com/assets/pptx-highlights/team-gfe-2026.jpg',
     title: 'Logo + Letterhead + Website',
     description:
-      'Professional business assets including a custom logo, letterhead, and 1-month website access to present your business.',
+      'Professional business assets including a custom logo, letterhead and 1-month website access.',
   },
   {
     icon: Globe,
-    image: 'https://i.pinimg.com/736x/53/dd/c0/53ddc0c785f27223723d8f501236610e.jpg',
+    image:
+      'https://globpulsebita.gfeworldwide.com/vibrant-home/assets/trade-globe.jpg',
     title: 'GlobPulse Free Plan',
     description:
-      '1 year of GlobPulse Free Plan access to build your presence on the B2B marketplace and explore global business opportunities.',
+      '1 year of GlobPulse Free Plan access to build your business presence and explore global opportunities.',
   },
 ];
 

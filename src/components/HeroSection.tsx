@@ -2,6 +2,8 @@ import { motion } from 'framer-motion';
 import { ArrowRight, ShieldCheck, Globe, Ship, Package } from 'lucide-react';
 import { CTAButton } from '@/components/ui/CTAButton';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 type HeroSectionProps = {
   onGetStarted: () => void;
   onDashboardClick: () => void;
@@ -117,11 +119,11 @@ function HeroGlobeVisual() {
   return (
     <div className="relative w-full h-full">
       <div className="absolute inset-10 overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl shadow-navy-950/50">
-        <img
-          src="https://images.pexels.com/photos/262353/pexels-photo-262353.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-          alt="Container ship carrying products across international waters"
-          className="h-full w-full object-cover opacity-45"
-        />
+<img
+  src={`${API_URL}/vibrant-home/assets/hero-poster.jpg`}
+  alt="International container terminal"
+  className="h-full w-full object-cover opacity-45"
+/>
         <div className="absolute inset-0 bg-gradient-to-br from-navy-950/70 via-navy-900/35 to-gold-500/10" />
         <div className="absolute inset-0 bg-grid-pattern opacity-30" />
       </div>

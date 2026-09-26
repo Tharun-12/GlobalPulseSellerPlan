@@ -183,20 +183,30 @@ export function SellerSignup({
        REQUIRED FIELDS
     ======================================================== */
 
-    if (
-  !trimmedName ||
-  !trimmedBusinessName ||
-  !trimmedEmail ||
-  !trimmedCountry ||
-  !city.trim() ||
-  !trimmedPhone
-) {
-      setError(
-        'Please complete all required fields.'
-      );
+if (!trimmedName) {
+  setError('Please enter your full name.');
+  return;
+}
 
-      return;
-    }
+if (!trimmedEmail) {
+  setError('Please enter your email.');
+  return;
+}
+
+if (!trimmedCountry) {
+  setError('Country information is not available. Please try again.');
+  return;
+}
+
+if (!city.trim()) {
+  setError('Please enter your location.');
+  return;
+}
+
+if (!trimmedPhone) {
+  setError('Please enter your mobile number.');
+  return;
+}
 
 
     /* =======================================================
@@ -548,7 +558,15 @@ useEffect(() => {
         );
       }
 
-      setCountries(normalizedCountries);
+     setCountries(normalizedCountries);
+
+      const india = normalizedCountries.find(
+        (item) => item.country_name.trim().toLowerCase() === 'india'
+      );
+
+      if (india) {
+        setCountry(String(india.country_id));
+      }
 
     } catch (error) {
       console.error(
@@ -733,10 +751,6 @@ useEffect(() => {
             "
           >
             Company Name
-
-            <span className="ml-1 text-red-500">
-              *
-            </span>
           </label>
 
           <div className="relative">
@@ -806,7 +820,7 @@ useEffect(() => {
               text-navy-700
             "
           >
-            Business Email
+            Email
 
             <span className="ml-1 text-red-500">
               *
@@ -835,7 +849,7 @@ useEffect(() => {
               type="email"
               value={email}
               onChange={handleEmailChange}
-              placeholder="Enter your business email"
+              placeholder="Enter your email"
               autoComplete="email"
               spellCheck={false}
               className="
@@ -865,110 +879,16 @@ useEffect(() => {
           </div>
         </div>
 
+{/* <div>
+  <label className="block text-sm font-medium text-navy-700 mb-2">
+    Country
+    <span className="ml-1 text-red-500">*</span>
+  </label>
 
-        {/* ===================================================
-            COUNTRY
-        ==================================================== */}
-
-        <div>
-          <label
-            htmlFor="seller-signup-country"
-            className="
-              mb-1.5
-              block
-              text-sm
-              font-medium
-              text-navy-700
-            "
-          >
-            Country
-
-            <span className="ml-1 text-red-500">
-              *
-            </span>
-          </label>
-
-          <div className="relative">
-
-            <MapPin
-              aria-hidden="true"
-              className="
-                pointer-events-none
-                absolute
-                left-3
-                top-1/2
-                z-10
-                h-4
-                w-4
-                -translate-y-1/2
-                text-navy-400
-              "
-            />
-
-            <select
-  id="seller-signup-country"
-  name="country"
-  value={country}
-  onChange={handleCountryChange}
-  disabled={loadingCountries}
-  className="
-    block
-    w-full
-    appearance-none
-    rounded-lg
-    border
-    border-navy-200
-    bg-white
-    py-3
-    pl-10
-    pr-10
-    text-sm
-    font-medium
-    text-navy-900
-    outline-none
-    transition-all
-    duration-200
-    focus:border-navy-500
-    focus:ring-2
-    focus:ring-navy-100
-    disabled:cursor-not-allowed
-    disabled:bg-navy-50
-  "
->
-  <option value="">
-    {loadingCountries
-      ? 'Loading countries...'
-      : 'Select your country'}
-  </option>
-
-  {countries.map((item) => (
-    <option
-      key={item.country_id}
-      value={String(item.country_id)}
-    >
-      {item.country_name}
-    </option>
-  ))}
-</select>
-
-            <ArrowRight
-              aria-hidden="true"
-              className="
-                pointer-events-none
-                absolute
-                right-3
-                top-1/2
-                h-4
-                w-4
-                rotate-90
-                -translate-y-1/2
-                text-navy-400
-              "
-            />
-
-          </div>
-        </div>
-
+  <div className="w-full rounded-xl border border-navy-200 bg-navy-50 px-4 py-3 text-navy-700">
+    India
+  </div>
+</div> */}
 
         <div>
   <label
@@ -981,7 +901,7 @@ useEffect(() => {
       text-navy-700
     "
   >
-    City
+    Location
     <span className="ml-1 text-red-500">*</span>
   </label>
 
@@ -1006,7 +926,7 @@ useEffect(() => {
       type="text"
       value={city}
       onChange={handleCityChange}
-      placeholder="Enter your city"
+      placeholder="Enter your location"
       autoComplete="address-level2"
       className="
         block
@@ -1174,28 +1094,28 @@ useEffect(() => {
             ">
               I accept the{' '}
 
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+          <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-                  window.open(
-                    '/terms-and-conditions',
-                    '_blank',
-                    'noopener,noreferrer'
-                  );
-                }}
-                className="
-                  font-medium
-                  text-navy-800
-                  underline
-                  underline-offset-2
-                  hover:text-navy-900
-                "
-              >
-                Terms & Conditions
-              </button>
+    window.open(
+      `${API_URL}/term-conditions`,
+      '_blank',
+      'noopener,noreferrer'
+    );
+  }}
+  className="
+    font-medium
+    text-navy-800
+    underline
+    underline-offset-2
+    hover:text-navy-900
+  "
+>
+  Terms & Conditions
+</button>
 
               .
             </span>

@@ -25,9 +25,9 @@ export function CTAButton({
   };
 
   const variants = {
-    gold: 'bg-gold-400 text-navy-900 hover:bg-gold-300 shadow-lg shadow-gold-500/20 hover:shadow-xl hover:shadow-gold-500/30 hover:-translate-y-0.5',
+    gold: 'bg-gold-400 text-navy-950 hover:bg-gold-300 shadow-lg shadow-gold-500/20 hover:shadow-xl hover:shadow-gold-500/30 hover:-translate-y-0.5',
     outline:
-      'border-2 border-navy-200 text-navy-700 hover:border-navy-400 hover:text-navy-900 bg-white hover:bg-navy-50',
+      'border-2 border-navy-200 text-navy-300 hover:border-navy-400 hover:text-navy-900 bg-white hover:bg-navy-50',
     light:
       'bg-white text-navy-900 hover:bg-navy-100 shadow-lg hover:shadow-xl hover:-translate-y-0.5',
   };

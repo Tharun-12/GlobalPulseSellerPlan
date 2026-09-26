@@ -1,13 +1,36 @@
 import { ArrowRight } from 'lucide-react';
 import { navLinks } from '@/data/content';
 import { CTAButton } from '@/components/ui/CTAButton';
-
+const API_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 type FooterProps = {
   onGetStarted: () => void;
     onDashboardClick: () => void;
     hasActive999Package?: boolean;
 
 };
+
+const footerLinks = [
+  {
+    label: 'Privacy Policy',
+    path: '/privacy-policy',
+  },
+  {
+    label: 'Terms & Conditions',
+    path: '/term-conditions',
+  },
+  {
+    label: 'Refund Policy',
+    path: '/refund-policy',
+  },
+  {
+    label: 'Shipping Policy',
+    path: '/shipping-policy',
+  },
+  {
+    label: 'Contact Us',
+    path: '/contact',
+  },
+];
 
 export function Footer({ onGetStarted,  onDashboardClick, hasActive999Package = false, }: FooterProps) {
   const handleNavClick = (href: string) => {
@@ -69,22 +92,20 @@ export function Footer({ onGetStarted,  onDashboardClick, hasActive999Package = 
             <h3 className="text-sm font-semibold uppercase tracking-wider text-navy-200 mb-4">
               Legal
             </h3>
-            <ul className="space-y-3">
-              {['Privacy Policy', 'Terms & Conditions', 'Refund & Cancellation Policy', 'Contact'].map(
-                (item) => (
-                  <li key={item}>
-                    <span className="text-sm text-navy-400 hover:text-white transition-colors cursor-pointer">
-                      {item}
-                      {item === 'Contact' && (
-                        <span className="block text-xs text-navy-500 mt-0.5">
-                          [Contact details to be added]
-                        </span>
-                      )}
-                    </span>
-                  </li>
-                )
-              )}
-            </ul>
+           <ul className="space-y-3">
+  {footerLinks.map((link) => (
+    <li key={link.label}>
+      <a
+        href={`${API_URL}${link.path}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-sm text-navy-400 hover:text-white transition-colors"
+      >
+        {link.label}
+      </a>
+    </li>
+  ))}
+</ul>
           </div>
         </div>
 

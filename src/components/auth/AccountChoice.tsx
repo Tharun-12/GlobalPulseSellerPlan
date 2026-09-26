@@ -71,7 +71,7 @@ export function AccountChoice({
           {/* Content */}
           <div className="min-w-0 flex-1">
             <p className="font-semibold text-navy-900">
-              I already have an account
+              Continue as an Existing Seller
             </p>
 
             <p className="mt-1 text-xs leading-relaxed text-navy-500">
