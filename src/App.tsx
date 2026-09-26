@@ -292,7 +292,7 @@ const handleGetStarted = useCallback(() => {
 
         <AudienceSection />
 
-        <WhyPlanSection />
+        {/* <WhyPlanSection /> */}
 
         <WhyGlobPulseSection />
 
